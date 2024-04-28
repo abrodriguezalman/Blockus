@@ -4,10 +4,10 @@ Fake implementations of BlokusBase.
 We provide a BlokusStub implementation, and
 you must provide a BlokusFake implementation.
 """
-from shape_definitions import ShapeKind
+from shape_definitions import ShapeKind, definitions
 from piece import Point, Shape, Piece
 from base import BlokusBase, Grid
-
+from typing import Optional
 
 class BlokusStub(BlokusBase):
     """
@@ -256,6 +256,7 @@ class BlokusFake(BlokusBase):
     _curr_player: int
     _grid: Grid
     _retired_players: set[int]
+    _start_positions: set[Point]
 
     def __init__(self, 
                  num_players: int, 
@@ -279,10 +280,11 @@ class BlokusFake(BlokusBase):
         self._curr_player = 1
         self._grid = [[None] * size for _ in range(size)]
         self._retired_players = set()
+        self._start_positions = start_positions
 
         #load in _shapes using the from_string method in piece.py
         self._shapes = {}
-        for shape, str in ShapeKind.definitions:
+        for shape, str in definitions.items():
             self._shapes[shape] = Shape.from_string(shape, str)
 
     @property
