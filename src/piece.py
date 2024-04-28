@@ -81,8 +81,17 @@ class Shape:
         Create a Shape based on its string representation
         in shape_definitions.py. See that file for details.
         """
-        # TODO
-        raise NotImplementedError
+        k = kind
+        transform = False
+        origin = (0,0)
+        square = list()
+
+        if "O" in definition or "@" in definition:
+            transform = True
+            #not sure what to change origin to
+            #not sure what squares is supposed to look like
+        return Shape(kind, origin, transform, square)
+        
 
     def flip_horizontally(self) -> None:
         """

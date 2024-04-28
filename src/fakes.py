@@ -282,8 +282,8 @@ class BlokusFake(BlokusBase):
 
         #load in _shapes using the from_string method in piece.py
         self._shapes = {}
-        for shape in ShapeKind.definitions:
-            self._shapes[shape] = Shape.from_string(shape)
+        for shape, str in ShapeKind.definitions:
+            self._shapes[shape] = Shape.from_string(shape, str)
 
     @property
     def shapes(self) -> dict[ShapeKind, Shape]:
