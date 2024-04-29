@@ -18,6 +18,7 @@ from fakes import BlokusStub, BlokusFake
 
 #number of pixels for each grid square
 SIDE: int = 50
+SMALL_SIDE: int = 40
 BORDER: int = 1
 
 Color = tuple[int, int, int]
@@ -59,11 +60,15 @@ def draw_board(surface: pygame.surface.Surface, blokus: BlokusBase, players: lis
 
     surface.fill((229, 204, 255))
 
+    s = SIDE
+    if blokus.size > 15:
+        s = SMALL_SIDE
+
     # Draw the borders around each cell
     #for now, each cell will be 20px
     for row in range(size):
         for col in range(size):
-            rect = (col * SIDE, row * SIDE, SIDE, SIDE)
+            rect = (col * s, row * s, s, s)
 
             if (row, col) in blokus.start_positions:
                 #fill in start positions
@@ -95,7 +100,10 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
     pygame.init()
     pygame.display.set_caption("Blokus!")
 
-    s = SIDE*blokus.size
+    s = SIDE * blokus.size
+    if blokus.size > 15:
+        s = SMALL_SIDE * blokus.size
+
     surface = pygame.display.set_mode((s, s))
     clock = pygame.time.Clock()
 
@@ -118,11 +126,12 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
 
 #command line options/arguments
 @click.command(name="gui")
-@click.argument('size', type=click.INT, default=14)
 @click.option('--num_players', type=click.INT, default=2)
+@click.argument('size', type=click.INT, default=14)
 
 def cmd(size: int, num_players: int) -> None:
     blokus: BlokusBase
+    print(size)
 
     #temporary start positions - at opposize corners of the board
     #eventually will need to implement this based on board size
@@ -144,6 +153,6 @@ def cmd(size: int, num_players: int) -> None:
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        cmd(sys.argv[1])
+        cmd(sys.argv[1:])
     else:
         cmd()

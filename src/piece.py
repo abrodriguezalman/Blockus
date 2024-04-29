@@ -81,7 +81,6 @@ class Shape:
         Create a Shape based on its string representation
         in shape_definitions.py. See that file for details.
         """
-        k = kind
         transform = False
         origin = (0,0)
         square = list()
