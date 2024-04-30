@@ -81,24 +81,27 @@ class Shape:
         Create a Shape based on its string representation
         in shape_definitions.py. See that file for details.
         """
+
+        #defaults
         transform = False
         origin = (0,0)
         square = list()
 
         #split the string representation of the piece into rows
+        #remove the empty rows at the beginning and end
         rows = definition.split('\n')
         del rows[len(rows)-1]
         del rows[0]
         
-        #for each row, strip away the extra 9 units of whitespace
+        #strip away the extra 9 units of leading whitespace
         #all rows should now have the same length
         for i in range(len(rows)):
             rows[i] = rows[i][9:]
             print(list(rows[i]))
 
-        #(0,0) located in top left corner
+        #relative to (0,0) located in top left corner
         #locate origin, if one exists
-        #add points to square relative to (0,0)
+        #and add points to square
         for i in range(len(rows)):
             for j in range(len(rows[i])):
                 if rows[i][j] == 'O' or rows[i][j] == '@':
