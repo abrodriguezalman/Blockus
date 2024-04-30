@@ -97,7 +97,6 @@ class Shape:
         #all rows should now have the same length
         for i in range(len(rows)):
             rows[i] = rows[i][9:]
-            print(list(rows[i]))
 
         #relative to (0,0) located in top left corner
         #locate origin, if one exists

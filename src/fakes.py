@@ -280,7 +280,6 @@ class BlokusFake(BlokusBase):
         self._curr_player = 1
         self._grid = [[None] * size for _ in range(size)]
         self._retired_players = set()
-        self._start_positions = start_positions
 
         #load in _shapes using the from_string method in piece.py
         self._shapes = {}
@@ -429,7 +428,17 @@ class BlokusFake(BlokusBase):
         Raises ValueError if the anchor of the piece
         is None or not a valid position on the board.
         """
-        raise NotImplementedError
+        #check ValueErrors
+        piece._check_anchor()
+        if piece.shape.kind not in self.remaining_shapes(self.curr_player):
+            raise ValueError
+        
+        #if the piece was placed at the given anchor, check for collisions
+        for x, y in piece.squares():
+            if x < 0 or y < 0 or x > self.size-1 or y > self.size-1:
+                return False
+            
+        return True
 
     def any_collisions(self, piece: Piece) -> bool:
         """
@@ -445,7 +454,20 @@ class BlokusFake(BlokusBase):
         Raises ValueError if the anchor of the piece
         is None or not a valid position on the board.
         """
-        raise NotImplementedError
+        #check ValueErrors
+        piece._check_anchor()
+        if piece.anchor[0] < 0 or piece.anchor[1] < 0 \
+            or piece.anchor[0] > self.size-1 or piece.anchor[1] > self.size-1:
+                return False
+        if piece.shape.kind not in self.remaining_shapes(self.curr_player):
+            raise ValueError
+        
+        #check if the necessary grid space is empty
+        for x, y in piece.squares():
+            if self.grid[x][y] is not None:
+                return False
+        return True
+        
 
     def legal_to_place(self, piece: Piece) -> bool:
         """
@@ -464,6 +486,12 @@ class BlokusFake(BlokusBase):
         Raises ValueError if the player has already
         played a piece with this shape.
         """
+        if piece.shape.kind not in self.remaining_shapes(self.curr_player):
+            raise ValueError
+        
+        #for fake implementation, only check for collisions 
+        #don't need to check start position or corners not edges condition
+        return self.any_wall_collisions(piece) and self.any_collisions(piece):
 
     def maybe_place(self, piece: Piece) -> bool:
         """
