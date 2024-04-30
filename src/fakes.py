@@ -458,7 +458,7 @@ class BlokusFake(BlokusBase):
         piece._check_anchor()
         if piece.anchor[0] < 0 or piece.anchor[1] < 0 \
             or piece.anchor[0] > self.size-1 or piece.anchor[1] > self.size-1:
-                return False
+                raise ValueError
         if piece.shape.kind not in self.remaining_shapes(self.curr_player):
             raise ValueError
         
