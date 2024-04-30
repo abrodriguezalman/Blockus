@@ -511,9 +511,31 @@ class BlokusFake(BlokusBase):
         Raises ValueError if the player has already
         played a piece with this shape.
         """
-        #change the grid
-        #remove the piece from remaining pieces
-        raise NotImplementedError
+        
+        
+
+        #check if the piece is legal to place
+        if self.legal_to_place(piece):
+            
+            #check if the piece we want to play is played before (or available
+            #to play)
+            if piece.shape in self._players[self.curr_player].values():
+                #remove the piece from remaining pieces
+                del self._players[self.curr_player][piece.shape.kind]
+            else:
+                raise ValueError(f"This piece is already played")
+
+            for square in piece.shape.squares(): 
+                x2, y2 = square
+                #change the grid
+                self._grid[x2][y2] = (self.curr_player, piece.shape.kind)
+            
+            #change who's turn it is
+            self._curr_player = (self.curr_player % self.num_players) + 1
+            return True
+
+        return False
+
 
     def retire(self) -> None:
         """
@@ -521,7 +543,7 @@ class BlokusFake(BlokusBase):
         may choose to retire. This player does not get any more
         turns; they are skipped over during subsequent gameplay.
         """
-        raise NotImplementedError
+        self._retired_players.add(self.curr_player)
 
     def get_score(self, player: int) -> int:
         """
@@ -529,7 +551,10 @@ class BlokusFake(BlokusBase):
         can be computed at any time during gameplay or at the
         completion of a game.
         """
-        raise NotImplementedError
+        score = 0
+        for shape in self._players[player].values():
+            score += len(shape.squares)
+        return -1 * score
 
     def available_moves(self) -> set[Piece]:
         """
