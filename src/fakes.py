@@ -287,6 +287,12 @@ class BlokusFake(BlokusBase):
         for shape, str in definitions.items():
             self._shapes[shape] = Shape.from_string(shape, str)
 
+        #a dictionary to keep track of the players and their pieces left
+        #since this implementation only takes 2 players, this dictionary is 
+        #hardcoded to have two players. To be changed later
+        
+        self._players: dict[int, dict[ShapeKind, Shape]] \
+                       = {1: self._shapes.copy(), 2: self._shapes.copy()}
     @property
     def shapes(self) -> dict[ShapeKind, Shape]:
         """
@@ -406,7 +412,7 @@ class BlokusFake(BlokusBase):
         Returns a list of shape kinds that a particular
         player has not yet played.
         """
-        raise NotImplementedError
+        return list(self._players[player].keys())
 
     def any_wall_collisions(self, piece: Piece) -> bool:
         """
@@ -477,6 +483,8 @@ class BlokusFake(BlokusBase):
         Raises ValueError if the player has already
         played a piece with this shape.
         """
+        #change the grid
+        #remove the piece from remaining pieces
         raise NotImplementedError
 
     def retire(self) -> None:
