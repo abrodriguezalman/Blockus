@@ -491,7 +491,7 @@ class BlokusFake(BlokusBase):
         
         #for fake implementation, only check for collisions 
         #don't need to check start position or corners not edges condition
-        return self.any_wall_collisions(piece) and self.any_collisions(piece):
+        return self.any_wall_collisions(piece) and self.any_collisions(piece)
 
     def maybe_place(self, piece: Piece) -> bool:
         """
