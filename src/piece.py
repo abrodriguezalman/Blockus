@@ -85,21 +85,31 @@ class Shape:
         origin = (0,0)
         square = list()
 
-        rep = [x for x in str if x != ' ']
-        row = -1
-        col = 0
-        for x in rep:
-            if x == '\\n':
-                row += 1
-                col = 0
-            elif x == 'O' or x == '@':
-                square.append((row, col))
-                origin = (row, col)
-                transform = True
-                col += 1
-            else:
-                square.append((row, col))
-                col += 1
+        #split the string representation of the piece into rows
+        rows = definition.split('\n')
+        del rows[len(rows)-1]
+        del rows[0]
+        
+        #for each row, strip away the extra 9 units of whitespace
+        #all rows should now have the same length
+        for i in range(len(rows)):
+            rows[i] = rows[i][9:]
+            print(list(rows[i]))
+
+        #(0,0) located in top left corner
+        #locate origin, if one exists
+        #add points to square relative to (0,0)
+        for i in range(len(rows)):
+            for j in range(len(rows[i])):
+                if rows[i][j] == 'O' or rows[i][j] == '@':
+                    origin = (i, j)
+                    transform = True
+                if rows[i][j] != ' ' and rows[i][j] != '@':
+                    square.append((i,j))
+        
+        #update points in square to be relative to origin
+        for i in range(len(square)):
+            square[i] = (square[i][0] - origin[0], square[i][1] - origin[1])     
             
         return Shape(kind, origin, transform, square)
         
