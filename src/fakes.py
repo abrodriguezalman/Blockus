@@ -284,8 +284,8 @@ class BlokusFake(BlokusBase):
 
         #load in _shapes using the from_string method in piece.py
         self._shapes = {}
-        for shape, str in definitions.items():
-            self._shapes[shape] = Shape.from_string(shape, str)
+        for shape in definitions:
+            self._shapes[shape] = Shape.from_string(shape, definitions[shape])
 
     @property
     def shapes(self) -> dict[ShapeKind, Shape]:
@@ -357,7 +357,7 @@ class BlokusFake(BlokusBase):
         of that piece. If no played piece occupies this square,
         then the Cell is None.
         """
-        return self.grid
+        return self._grid
 
     @property
     def game_over(self) -> bool:

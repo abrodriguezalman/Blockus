@@ -85,10 +85,22 @@ class Shape:
         origin = (0,0)
         square = list()
 
-        if "O" in definition or "@" in definition:
-            transform = True
-            #not sure what to change origin to
-            #not sure what squares is supposed to look like
+        rep = [x for x in str if x != ' ']
+        row = -1
+        col = 0
+        for x in rep:
+            if x == '\\n':
+                row += 1
+                col = 0
+            elif x == 'O' or x == '@':
+                square.append((row, col))
+                origin = (row, col)
+                transform = True
+                col += 1
+            else:
+                square.append((row, col))
+                col += 1
+            
         return Shape(kind, origin, transform, square)
         
 
