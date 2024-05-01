@@ -6,25 +6,34 @@ import os
 import sys
 from typing import Union
 import random
-
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 import pygame.gfxdraw
 import click
-
 from base import BlokusBase
 from fakes import BlokusStub, BlokusFake
+from shape_definitions import ShapeKind
 #from bot import RandomBot, SmartBot
 
+
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+
 #number of pixels for each grid square
-SIDE: int = 50
-SMALL_SIDE: int = 40
+SIDE: int = 45
+SMALL_SIDE: int = 35
 BORDER: int = 1
 
 Color = tuple[int, int, int]
 
 #class to store player information
 class Player:
+    """
+    Class to store information about each player in the GUI
+
+    Inputs:
+        _num (int): the player's number
+        _blokus (BlokusBase): the blokus game
+        _color (Color): the player's randomly generated color
+    """
 
     _num: int
     _blokus: BlokusBase
@@ -133,10 +142,13 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
 
 #command line options/arguments
 @click.command(name="gui")
-@click.option('--num_players', type=click.INT, default=2)
+#@click.option('--num_players', type=click.INT, default=2)
 @click.argument('size', type=click.INT, default=14)
 
-def cmd(size: int, num_players: int) -> None:
+def cmd(size: int) -> None:
+    """
+    Takes in command line input and creates a new blokus game
+    """
     blokus: BlokusBase
     print(size)
 
@@ -146,11 +158,13 @@ def cmd(size: int, num_players: int) -> None:
     s_pos = {(0,0), (size-1,size-1)}
 
     #current implementaton uses stub - adapt to fake later
-    blokus = BlokusStub(num_players, size, s_pos)
+    #default num-players is 2
+    blokus = BlokusStub(2, size, s_pos)
 
     #create list of players and assign random colors
     players = list()
-    for x in range(blokus.num_players):
+    
+    for x in range(1, blokus.num_players+1):
         #generate a random color
         #must check for duplicates + make sure color is not border or background color - do later
         color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
