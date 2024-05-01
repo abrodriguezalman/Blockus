@@ -88,15 +88,22 @@ class Shape:
         square = list()
 
         #split the string representation of the piece into rows
-        #remove the empty rows at the beginning and end
+        #remove empty rows 
         rows = definition.split('\n')
-        del rows[len(rows)-1]
-        del rows[0]
+        for row in rows:
+            if not ('X' in row or 'O' in row or '@' in row):
+                rows.remove(row)
         
-        #strip away the extra 9 units of leading whitespace
+        #strip away the extra units of leading whitespace 
         #all rows should now have the same length
+        temp = [len(x.strip()) for x in rows]
+        shape_width = max(temp)
+        leading_space = len(rows[0]) - shape_width
+
         for i in range(len(rows)):
-            rows[i] = rows[i][9:]
+            if rows[i][0] == ' ':
+                rows[i] = rows[i][leading_space:]
+
 
         #relative to (0,0) located in top left corner
         #locate origin, if one exists
