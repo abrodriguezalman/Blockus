@@ -73,7 +73,7 @@ def draw_board(surface: pygame.surface.Surface, blokus: BlokusBase, players: lis
             if (row, col) in blokus.start_positions:
                 #fill in start positions
                 pygame.gfxdraw.box(surface, rect, (0, 0, 0))
-            elif grid[row][col] is not None:
+            if grid[row][col] is not None:
                 #if there is a piece on the square, fill in with player's color
                 #as of now, just make it white
                 p1 = grid[row][col][0]

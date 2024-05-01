@@ -517,13 +517,13 @@ class BlokusFake(BlokusBase):
             
             #check if the piece we want to play is played before (or available
             #to play)
-            if piece.shape in self._players[self.curr_player].values():
+            if piece.shape.kind in self.remaining_shapes(self.curr_player):
                 #remove the piece from remaining pieces
                 del self._players[self.curr_player][piece.shape.kind]
             else:
                 raise ValueError(f"This piece is already played")
 
-            for square in piece.shape.squares(): 
+            for square in piece.squares(): 
                 x2, y2 = square
                 #change the grid
                 self._grid[x2][y2] = (self.curr_player, piece.shape.kind)
