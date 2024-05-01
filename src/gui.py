@@ -75,7 +75,6 @@ def draw_board(surface: pygame.surface.Surface, blokus: BlokusBase, players: lis
                 pygame.gfxdraw.box(surface, rect, (0, 0, 0))
             if grid[row][col] is not None:
                 #if there is a piece on the square, fill in with player's color
-                #as of now, just make it white
                 p1 = grid[row][col][0]
                 color = players[p1-1].color
                 pygame.gfxdraw.box(surface, rect, color)
@@ -114,7 +113,15 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            #PROCESS OTHER EVENTS HERE
+
+            elif event.type == pygame.MOUSEBUTTONUP:
+
+                pos = event.pos
+                #locate the grid position
+                board_pos = (int(pos[0]/(s/blokus.size)), int(pos[1]/(s/blokus.size)))
+                #not sure where to get the piece from, but piece.set_anchor(board_pos)
+
+
 
         draw_board(surface, blokus, players)
         pygame.display.update()

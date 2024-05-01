@@ -5,6 +5,7 @@ Modify only the methods marked as TODO.
 """
 import copy
 from typing import Optional
+import numpy as np # type: ignore
 
 from shape_definitions import ShapeKind
 
@@ -97,11 +98,9 @@ class Shape:
         #strip away the extra units of leading whitespace 
         #all rows should now have the same length
         leading_space = min(len(row) - len(row.strip()) for row in rows)
-
         for i in range(len(rows)):
             if rows[i][0] == ' ':
                 rows[i] = rows[i][leading_space:]
-
 
         #relative to (0,0) located in top left corner
         #locate origin, if one exists
@@ -127,24 +126,31 @@ class Shape:
         (across the vertical axis through its origin),
         by modifying the squares in place.
         """
-        # TODO
-        raise NotImplementedError
+        s = self.squares
+        for i in range(len(s)):
+            s[i] = (s[i][0], -s[i][1])
 
     def rotate_left(self) -> None:
         """
         Rotate the shape left by 90 degrees,
         by modifying the squares in place.
         """
-        # TODO
-        raise NotImplementedError
+        r = np.array(( (0, -1), (1, 0)))
+        s = self.squares
+        for i in range(len(s)):
+            v = np.array((s[i][0], s[i][1]))
+            s[i] = (r.dot(v)[0], r.dot(v)[1])
 
     def rotate_right(self) -> None:
         """
         Rotate the shape right by 90 degrees,
         by modifying the squares in place.
         """
-        # TODO
-        raise NotImplementedError
+        r = np.array(( (0, 1), (-1, 0)))
+        s = self.squares
+        for i in range(len(s)):
+            v = np.array((s[i][0], s[i][1]))
+            s[i] = (r.dot(v)[0], r.dot(v)[1])
 
 
 class Piece:
