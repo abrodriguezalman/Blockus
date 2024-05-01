@@ -5,7 +5,7 @@ Modify only the methods marked as TODO.
 """
 import copy
 from typing import Optional
-import numpy as np # type: ignore
+#import numpy as np # type: ignore
 
 from shape_definitions import ShapeKind
 

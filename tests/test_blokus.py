@@ -1,5 +1,5 @@
-import pytest
 from typing import Optional
+import pytest
 
 import shape_definitions
 from shape_definitions import ShapeKind
@@ -11,7 +11,7 @@ def test_inheritance() -> None:
     """Test that Blokus inherits from BlokusBase"""
     assert issubclass(Blokus,
                       BlokusBase), "BlokusFake should inherit from BlokusBase"
-    
+
 def t_blokus_mini(num_players: int) -> None:
     """Test the size, start_positions, num_players, curr_players, and grid have
     all been initialized correctly for Blokus Mini"""
@@ -52,7 +52,7 @@ def t_blokus_duo() -> None:
     assert b.curr_player == 1
     assert b.grid == [[None] * size for _ in range(size)]
     return b
-    
+
 def test_init_blokus_mini_1() -> None:
     """Test the size, start_positions, num_players, curr_players, and grid have
     all been initialized correctly for 1-player Blokus Mini"""
@@ -74,6 +74,7 @@ def test_init_blokus_duo_2() -> None:
     t_blokus_duo()
 
 def test_shapes_loaded() -> None:
+    "Test that all shapes are loaded correctly"
     blokus = t_blokus_mini(1)
     # One piece shapes
     shape = blokus.shapes[ShapeKind.ONE]
@@ -207,6 +208,7 @@ def test_shapes_loaded() -> None:
     assert shape.squares == [(-1, -1), (-1, 0), (0, 0), (1, 0), (1, 1)]
 
 def test_some_flipped_shapes() -> None:
+    "Test that some shapes are flipped correctly"
     blokus = t_blokus_mini(1)
     shape = blokus.shapes[ShapeKind.Z]
     shape.flip_horizontally()
@@ -221,6 +223,7 @@ def test_some_flipped_shapes() -> None:
     assert shape.squares == [(-2, 0), (-1, 0), (0, 0), (1, -1), (1, 0)]
 
 def test_some_left_rotated_shapes() -> None:
+    "Test that some shapes can be left rotated correctly"
     blokus = t_blokus_mini(1)
     shape = blokus.shapes[ShapeKind.Z]
     shape.rotate_left()
@@ -235,6 +238,7 @@ def test_some_left_rotated_shapes() -> None:
     assert shape.squares == [(-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1)]
 
 def test_some_right_rotated_shapes() -> None:
+    "Test that some shapes can be right rotated correctly"
     blokus = t_blokus_mini(1)
     shape = blokus.shapes[ShapeKind.TWO]
     shape.rotate_right()
@@ -249,6 +253,8 @@ def test_some_right_rotated_shapes() -> None:
     assert shape.squares == [(0, -2), (0, -1), (0, 0), (1, 0), (1, 1)]
 
 def test_some_cardinal_neighbors() -> None:
+    """Test that the cardinal neighbors for some shapes can be determined
+    correctly"""
     blokus = t_blokus_mono()
 
     piece_one = Piece(blokus.shapes[ShapeKind.ONE])
@@ -270,6 +276,8 @@ def test_some_cardinal_neighbors() -> None:
     assert all(elem in neighbors for elem in expected)
 
 def test_some_intercardinal_neighbors() -> None:
+    """Test that the intercardinal neighbors for some shapes can be determined
+    correctly"""
     blokus = t_blokus_mono()
 
     piece_one = Piece(blokus.shapes[ShapeKind.TWO])
@@ -292,6 +300,10 @@ def test_some_intercardinal_neighbors() -> None:
     assert all(elem in neighbors for elem in expected)
 
 def test_one_player_blokus_mini_game() -> None:
+    """Test that a one player blokus game can be created, and two moves can be
+    done before retiring, and check game curr_player, maybe_place, and game_over
+    values are correct at every step. Check get score and winner are correct
+    after game over."""
     blokus = t_blokus_mini(1)
 
     piece_one = Piece(blokus.shapes[ShapeKind.ONE])
@@ -322,6 +334,10 @@ def test_one_player_blokus_mini_game() -> None:
     assert blokus.get_score(1) == -83
 
 def test_two_player_blokus_mini_game() -> None:
+    """Test that a two player blokus game can be created, and each player can
+    make two moves before retiring, and check game curr_player, maybe_place, and
+    game_over values are correct at every step. Check get score and winner are
+    correct after game over."""
     blokus = t_blokus_mini(2)
 
     piece_one = Piece(blokus.shapes[ShapeKind.ONE])
