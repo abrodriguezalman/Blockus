@@ -4,10 +4,10 @@ Fake implementations of BlokusBase.
 We provide a BlokusStub implementation, and
 you must provide a BlokusFake implementation.
 """
+from typing import Optional
 from shape_definitions import ShapeKind, definitions
 from piece import Point, Shape, Piece
 from base import BlokusBase, Grid
-from typing import Optional
 
 class BlokusStub(BlokusBase):
     """
@@ -250,6 +250,24 @@ class BlokusStub(BlokusBase):
 # Your BlokusFake implementation goes here
 #
 class BlokusFake(BlokusBase):
+    """
+    Fake implementation of BlokusBase.
+
+    This fake implementation behaves according to the following rules:
+
+    - It only supports one or two players.
+    - All 21 shapes are loaded into the game.
+    - The game does not support flipping or rotating pieces.
+    - A player's first piece need not be played on a starting position.
+    - Players are allowed to place a piece if none of its squares would collide 
+      with a wall or with any pieces that have already been played on the board.
+    - A player may retire (that is, without having played all their pieces), in 
+      which case they will not get any more turns.
+    - A player’s score is equal to the negation of the total number of squares 
+      among pieces they have not played. (Whether or not a player has played all
+      of their pieces, and whether the last one was the monomino, is not yet 
+      taken into account.)
+    """
     _shapes: dict[ShapeKind, Shape]
     _size: int
     _num_players: int
@@ -259,11 +277,11 @@ class BlokusFake(BlokusBase):
     _start_positions: set[Point]
     _players: dict[int, dict[ShapeKind, Shape]]
 
-    def __init__(self, 
-                 num_players: int, 
-                 size: int, 
+    def __init__(self,
+                 num_players: int,
+                 size: int,
                  start_positions: set[Point]) -> None:
-        
+
         #check for ValueErrors, as specified in BlokusBase
         #for fake implementation, only support 1-2 players
         if num_players < 1 or num_players > 2:
@@ -271,11 +289,11 @@ class BlokusFake(BlokusBase):
         if size < 5:
             raise ValueError
         for x, y in start_positions:
-            if x < 0 or y < 0 or x > size-1 or y > size-1:
+            if x < 0 or y < 0 or x > size - 1 or y > size - 1:
                 raise ValueError
         if len(start_positions) < num_players:
             raise ValueError
-        
+
         #if no ValueErrors, proceed
         super().__init__(num_players, size, start_positions)
         self._curr_player = 1
@@ -284,14 +302,14 @@ class BlokusFake(BlokusBase):
 
         #load in _shapes using the from_string method in piece.py
         self._shapes = {}
-        for shape in definitions:
-            self._shapes[shape] = Shape.from_string(shape, definitions[shape])
+        for shape, rep in definitions.items():
+            self._shapes[shape] = Shape.from_string(shape, rep)
 
         #a dictionary to keep track of the players and their pieces left
-        #since this implementation only takes 2 players, this dictionary is 
+        #since this implementation only takes 2 players, this dictionary is
         #hardcoded to have two players. To be changed later
         self._players = {1: self._shapes.copy(), 2: self._shapes.copy()}
-    
+
     @property
     def shapes(self) -> dict[ShapeKind, Shape]:
         """
@@ -374,13 +392,12 @@ class BlokusFake(BlokusBase):
         #if all players are retired, return True
         if len(self.retired_players) == self.num_players:
             return True
-        
+
         #if a player has not played all their pieces, return False
         for x in range(1, self.num_players + 1):
             if x not in self.retired_players:
                 if len(self.remaining_shapes(x)) != 0:
                     return False
-            
         return True
 
     @property
@@ -391,9 +408,9 @@ class BlokusFake(BlokusBase):
         """
         if not self.game_over:
             return None
-        
-        win_list = list()
-        max_score = -100000000
+
+        win_list: list[int] = []
+        max_score: int = -100000000
         for x in range(1, self.num_players+1):
             if self.get_score(x) > max_score:
                 win_list = [x]
@@ -433,13 +450,11 @@ class BlokusFake(BlokusBase):
         piece._check_anchor()
         if piece.shape.kind not in self.remaining_shapes(self.curr_player):
             raise ValueError
-        
-        
+
         #if the piece was placed at the given anchor, check for collisions
         for x, y in piece.squares():
-            if x < 0 or y < 0 or x > self.size-1 or y > self.size-1:
+            if x < 0 or y < 0 or x > self.size - 1 or y > self.size - 1:
                 return True
-            
         return False
 
     def any_collisions(self, piece: Piece) -> bool:
@@ -458,18 +473,20 @@ class BlokusFake(BlokusBase):
         """
         #check ValueErrors
         piece._check_anchor()
-        if piece.anchor[0] < 0 or piece.anchor[1] < 0 \
-            or piece.anchor[0] > self.size-1 or piece.anchor[1] > self.size-1:
-                raise ValueError
+        assert not piece.anchor is None
+        anchor_row, anchor_col = piece.anchor
+
+        if anchor_row < 0 or anchor_col < 0 \
+        or anchor_row > self.size - 1 or anchor_col > self.size - 1:
+            raise ValueError
         if piece.shape.kind not in self.remaining_shapes(self.curr_player):
             raise ValueError
-        
+
         #check if the necessary grid space is empty
         for x, y in piece.squares():
             if self.grid[x][y] is not None:
                 return True
         return False
-        
 
     def legal_to_place(self, piece: Piece) -> bool:
         """
@@ -490,8 +507,8 @@ class BlokusFake(BlokusBase):
         """
         if piece.shape.kind not in self.remaining_shapes(self.curr_player):
             raise ValueError
-        
-        #for fake implementation, only check for collisions 
+
+        #for fake implementation, only check for collisions
         #don't need to check start position or corners-not-edges condition
         return not self.any_wall_collisions(piece) and not self.any_collisions(piece)
 
@@ -512,24 +529,24 @@ class BlokusFake(BlokusBase):
 
         Raises ValueError if the player has already
         played a piece with this shape.
-        """ 
+        """
 
         #check if the piece is legal to place
         if self.legal_to_place(piece):
-            
+
             #check if the piece we want to play is played before (or available
             #to play)
             if piece.shape.kind in self.remaining_shapes(self.curr_player):
                 #remove the piece from remaining pieces
                 del self._players[self.curr_player][piece.shape.kind]
             else:
-                raise ValueError(f"This piece is already played")
+                raise ValueError("This piece is already played")
 
-            for square in piece.squares(): 
+            for square in piece.squares():
                 x2, y2 = square
                 #change the grid
                 self._grid[x2][y2] = (self.curr_player, piece.shape.kind)
-            
+
             #change who's turn it is - account for retired players
             self._curr_player = (self.curr_player % self.num_players) + 1
             if len(self.retired_players) != self.num_players:
@@ -559,7 +576,7 @@ class BlokusFake(BlokusBase):
         can be computed at any time during gameplay or at the
         completion of a game.
         """
-        score = 0
+        score: int = 0
         for shape in self._players[player].values():
             score += len(shape.squares)
         return -1 * score
