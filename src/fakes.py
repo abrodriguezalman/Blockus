@@ -545,6 +545,9 @@ class BlokusFake(BlokusBase):
         turns; they are skipped over during subsequent gameplay.
         """
         self._retired_players.add(self.curr_player)
+        self._curr_player = (self.curr_player % self.num_players) + 1
+        while self.curr_player in self.retired_players:
+            self._curr_player = (self.curr_player % self.num_players) + 1
 
     def get_score(self, player: int) -> int:
         """
