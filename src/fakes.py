@@ -377,8 +377,9 @@ class BlokusFake(BlokusBase):
         
         #if a player has not played all their pieces, return False
         for x in range(1, self.num_players + 1):
-            if len(self.remaining_shapes(x)) != 0:
-                return False
+            if x not in self.retired_players:
+                if len(self.remaining_shapes(x)) != 0:
+                    return False
             
         return True
 
@@ -433,12 +434,13 @@ class BlokusFake(BlokusBase):
         if piece.shape.kind not in self.remaining_shapes(self.curr_player):
             raise ValueError
         
+        
         #if the piece was placed at the given anchor, check for collisions
         for x, y in piece.squares():
             if x < 0 or y < 0 or x > self.size-1 or y > self.size-1:
-                return False
+                return True
             
-        return True
+        return False
 
     def any_collisions(self, piece: Piece) -> bool:
         """
@@ -465,8 +467,8 @@ class BlokusFake(BlokusBase):
         #check if the necessary grid space is empty
         for x, y in piece.squares():
             if self.grid[x][y] is not None:
-                return False
-        return True
+                return True
+        return False
         
 
     def legal_to_place(self, piece: Piece) -> bool:
@@ -491,7 +493,7 @@ class BlokusFake(BlokusBase):
         
         #for fake implementation, only check for collisions 
         #don't need to check start position or corners-not-edges condition
-        return self.any_wall_collisions(piece) and self.any_collisions(piece)
+        return not self.any_wall_collisions(piece) and not self.any_collisions(piece)
 
     def maybe_place(self, piece: Piece) -> bool:
         """

@@ -241,6 +241,7 @@ class Piece:
             (row(self.anchor) + r, col(self.anchor) + c)
             for r, c in self.shape.squares
         ]
+    
 
     def cardinal_neighbors(self) -> set[Point]:
         """
