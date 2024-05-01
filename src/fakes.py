@@ -392,7 +392,7 @@ class BlokusFake(BlokusBase):
         
         win_list = list()
         max_score = 0
-        for x in range(0, self.num_players):
+        for x in range(1, self.num_players + 1):
             if self.get_score(x) > max_score:
                 win_list = [x]
                 max_score = self.get_score(x)
