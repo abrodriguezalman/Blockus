@@ -530,8 +530,9 @@ class BlokusFake(BlokusBase):
             
             #change who's turn it is - account for retired players
             self._curr_player = (self.curr_player % self.num_players) + 1
-            while self.curr_player in self.retired_players:
-                self._curr_player = (self.curr_player % self.num_players) + 1
+            if len(self.retired_players) != self.num_players:
+                while self.curr_player in self.retired_players:
+                    self._curr_player = (self.curr_player % self.num_players)+1
 
             return True
 
@@ -546,8 +547,9 @@ class BlokusFake(BlokusBase):
         """
         self._retired_players.add(self.curr_player)
         self._curr_player = (self.curr_player % self.num_players) + 1
-        while self.curr_player in self.retired_players:
-            self._curr_player = (self.curr_player % self.num_players) + 1
+        if len(self.retired_players) != self.num_players:
+            while self.curr_player in self.retired_players:
+                self._curr_player = (self.curr_player % self.num_players) + 1
 
     def get_score(self, player: int) -> int:
         """
