@@ -96,9 +96,7 @@ class Shape:
         
         #strip away the extra units of leading whitespace 
         #all rows should now have the same length
-        temp = [len(x.strip()) for x in rows]
-        shape_width = max(temp)
-        leading_space = len(rows[0]) - shape_width
+        leading_space = min(len(row) - len(row.strip()) for row in rows)
 
         for i in range(len(rows)):
             if rows[i][0] == ' ':
