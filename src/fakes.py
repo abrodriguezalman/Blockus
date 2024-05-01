@@ -376,7 +376,7 @@ class BlokusFake(BlokusBase):
             return True
         
         #if a player has not played all their pieces, return False
-        for x in range(0,self.num_players):
+        for x in range(1, self.num_players + 1):
             if len(self.remaining_shapes(x)) != 0:
                 return False
         return True

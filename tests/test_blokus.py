@@ -68,7 +68,7 @@ def test_init_blokus_mono() -> None:
     all been initialized correctly for Blokus Mono"""
     t_blokus_mono()
 
-def test_init_blokus_duo() -> None:
+def test_init_blokus_duo_2() -> None:
     """Test the size, start_positions, num_players, curr_players, and grid have
     all been initialized correctly for Blokus Duo"""
     t_blokus_duo()
@@ -209,5 +209,41 @@ def test_shapes_loaded() -> None:
 def test_some_flipped_shapes() -> None:
     blokus = t_blokus_mini(1)
     shape = blokus.shapes[ShapeKind.Z]
-    shape = shape.flip_horizontally()
+    shape.flip_horizontally()
     assert shape.squares == [(-1, 1), (-1, 0), (0, 0), (1, 0), (1, -1)]
+
+    shape = blokus.shapes[ShapeKind.W]
+    shape.flip_horizontally()
+    assert shape.squares == [(-1, -1), (0, -1), (0, 0), (1, 0), (1, 1)]
+
+    shape = blokus.shapes[ShapeKind.L]
+    shape.flip_horizontally()
+    assert shape.squares == [(-2, 0), (-1, 0), (0, 0), (1, -1), (1, 0)]
+
+def test_some_left_rotated_shapes() -> None:
+    blokus = t_blokus_mini(1)
+    shape = blokus.shapes[ShapeKind.Z]
+    shape.rotate_left()
+    assert shape.squares == [(-1, 1), (0, -1), (0, 0), (0, 1), (1, -1)]
+
+    shape = blokus.shapes[ShapeKind.A]
+    shape.rotate_left()
+    assert shape.squares == [(-1, 0), (0, -1), (0, 0), (1, 0)]
+
+    shape = blokus.shapes[ShapeKind.V]
+    shape.rotate_left()
+    assert shape.squares == [(-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1)]
+
+def test_some_right_rotated_shapes() -> None:
+    blokus = t_blokus_mini(1)
+    shape = blokus.shapes[ShapeKind.TWO]
+    shape.rotate_right()
+    assert shape.squares == [(0, 0), (1, 0)]
+
+    shape = blokus.shapes[ShapeKind.S]
+    shape.rotate_right()
+    assert shape.squares == [(-1, -1), (0, -1), (0, 0), (1, 0)]
+
+    shape = blokus.shapes[ShapeKind.N]
+    shape.rotate_right()
+    assert shape.squares == [(0, -2), (0, -1), (0, 0), (1, 0), (1, 1)]
