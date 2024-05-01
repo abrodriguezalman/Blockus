@@ -247,3 +247,116 @@ def test_some_right_rotated_shapes() -> None:
     shape = blokus.shapes[ShapeKind.N]
     shape.rotate_right()
     assert shape.squares == [(0, -2), (0, -1), (0, 0), (1, 0), (1, 1)]
+
+def test_some_cardinal_neighbors() -> None:
+    blokus = t_blokus_mono()
+
+    piece_one = Piece(blokus.shapes[ShapeKind.ONE])
+    piece_one.set_anchor((0, 0))
+    neighbors = piece_one.cardinal_neighbors()
+    expected = {(0, 1), (1, 0)}
+    assert all(elem in neighbors for elem in expected)
+
+    piece_one = Piece(blokus.shapes[ShapeKind.LETTER_O])
+    piece_one.set_anchor((1, 1))
+    neighbors = piece_one.cardinal_neighbors()
+    expected = {(0, 1), (0, 2), (1, 0), (1, 3), (2, 0), (2, 3), (3, 1), (3, 2)}
+    assert all(elem in neighbors for elem in expected)
+
+    piece_one = Piece(blokus.shapes[ShapeKind.Y])
+    piece_one.set_anchor((1, 1))
+    neighbors = piece_one.cardinal_neighbors()
+    expected = {(0, 0), (0, 2), (1, 2), (2, 0), (2, 2), (3, 0), (3, 2), (4, 1)}
+    assert all(elem in neighbors for elem in expected)
+
+def test_some_intercardinal_neighbors() -> None:
+    blokus = t_blokus_mono()
+
+    piece_one = Piece(blokus.shapes[ShapeKind.TWO])
+    piece_one.set_anchor((0, 0))
+    neighbors = piece_one.intercardinal_neighbors()
+    expected = {(1, 0), (1, 1), (1, 2)}
+    assert all(elem in neighbors for elem in expected)
+
+    piece_one = Piece(blokus.shapes[ShapeKind.C])
+    piece_one.set_anchor((1, 1))
+    neighbors = piece_one.intercardinal_neighbors()
+    expected = {(0, 0), (0, 1), (0, 2), (0, 3), (1, 0), (2, 0), (2, 2), (2, 3),
+                (3, 0), (3, 3)}
+    assert all(elem in neighbors for elem in expected)
+
+    piece_one = Piece(blokus.shapes[ShapeKind.F])
+    piece_one.set_anchor((1, 1))
+    neighbors = piece_one.intercardinal_neighbors()
+    expected = {(0, 0), (1, 2), (1, 3), (2, 0), (2, 2), (3, 0), (3, 3)}
+    assert all(elem in neighbors for elem in expected)
+
+def test_one_player_blokus_mini_game() -> None:
+    blokus = t_blokus_mini(1)
+
+    piece_one = Piece(blokus.shapes[ShapeKind.ONE])
+    piece_one.set_anchor((0, 0))
+    assert blokus.curr_player == 1
+    assert blokus.maybe_place(piece_one)
+    assert blokus.curr_player == 1
+    assert not blokus.game_over
+
+    piece_two = Piece(blokus.shapes[ShapeKind.TWO])
+    piece_two.set_anchor((1, 1))
+    assert blokus.curr_player == 1
+    assert blokus.maybe_place(piece_two)
+    assert blokus.curr_player == 1
+    assert not blokus.game_over
+
+    piece_three = Piece(blokus.shapes[ShapeKind.C])
+    piece_three.set_anchor((2, 3))
+    assert blokus.curr_player == 1
+    assert blokus.maybe_place(piece_three)
+    assert blokus.curr_player == 1
+    assert not blokus.game_over
+
+    blokus.retire()
+
+    assert blokus.game_over
+    assert blokus.winners == [1]
+    assert blokus.get_score(1) == -83
+
+def test_two_player_blokus_mini_game() -> None:
+    blokus = t_blokus_mini(2)
+
+    piece_one = Piece(blokus.shapes[ShapeKind.ONE])
+    piece_one.set_anchor((0, 0))
+    assert blokus.curr_player == 1
+    assert blokus.maybe_place(piece_one)
+    assert blokus.curr_player == 2
+    assert not blokus.game_over
+
+    piece_two = Piece(blokus.shapes[ShapeKind.ONE])
+    piece_two.set_anchor((4, 4))
+    assert blokus.curr_player == 2
+    assert blokus.maybe_place(piece_two)
+    assert blokus.curr_player == 1
+    assert not blokus.game_over
+
+    piece_three = Piece(blokus.shapes[ShapeKind.TWO])
+    piece_three.set_anchor((1, 1))
+    assert blokus.curr_player == 1
+    assert blokus.maybe_place(piece_three)
+    assert blokus.curr_player == 2
+    assert not blokus.game_over
+
+    piece_four = Piece(blokus.shapes[ShapeKind.TWO])
+    piece_four.set_anchor((3, 2))
+    assert blokus.curr_player == 2
+    assert blokus.maybe_place(piece_three)
+    assert blokus.curr_player == 1
+    assert not blokus.game_over
+
+    blokus.retire()
+    assert blokus.curr_player == 2
+    blokus.retire()
+
+    assert blokus.game_over
+    assert blokus.winners == [1, 2]
+    assert blokus.get_score(1) == -86
+    assert blokus.get_score(2) == -86

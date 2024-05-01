@@ -1,7 +1,7 @@
 # CMSC 14200 Course Project
 
 Team members:
-- Abril Rodriguez Almanzar (abrodriguezalman)
-- Avni Gupta (avnig)
-- Aybala Esmer (aybala)
-- Sarah Murad (samurad)
+- TUI: Abril Rodriguez Almanzar (abrodriguezalman)
+- GUI: Avni Gupta (avnig)
+- Bot: Aybala Esmer (aybala)
+- QA: Sarah Murad (samurad)
