@@ -376,3 +376,82 @@ def test_two_player_blokus_mini_game() -> None:
     assert blokus.winners == [1, 2]
     assert blokus.get_score(1) == -86
     assert blokus.get_score(2) == -86
+
+def test_exception_init() -> None:
+    """Test that blokus constructor raises an error if there are fewer than 1
+    player, if the size is less than 5, if the start pos is not on the board,
+    and if there are fewer start pos than players"""
+    with pytest.raises(ValueError):
+        b = Blokus(0, 10, {(0, 0)})
+    with pytest.raises(ValueError):
+        b = Blokus(1, 2, {(0, 0)})
+    with pytest.raises(ValueError):
+        b = Blokus(1, 10, {(-1, 0)})
+    with pytest.raises(ValueError):
+        b = Blokus(2, 10, {(0, 0)})
+
+def test_exception_place_already_played() -> None:
+    """Test that if you try to place a piece twice it raises an error."""
+    blokus = t_blokus_mini(1)
+    piece_one = Piece(blokus.shapes[ShapeKind.ONE])
+    piece_one.set_anchor((0, 0))
+    assert blokus.maybe_place(piece_one)
+
+    piece_one.set_anchor((1, 0))
+    with pytest.raises(ValueError):
+        blokus.maybe_place(piece_one)
+
+def test_exception_place_without_anchor() -> None:
+    """Test that trying to place a piece without an anchor raises an error."""
+    blokus = t_blokus_mini(1)
+    piece_one = Piece(blokus.shapes[ShapeKind.ONE])
+    with pytest.raises(ValueError):
+        blokus.maybe_place(piece_one)
+
+def t_place_first_pieces(blokus: Blokus) -> None:
+    """Test that a piece must be played on a start position. Takes in a blokus
+    board,a piece, and a bool which indicates whether this is the first piece"""
+    # Can only place first piece on a start position
+    piece_one = Piece(blokus.shapes[ShapeKind.ONE])
+    piece_one.set_anchor((0, 1))
+    assert not blokus.maybe_place(piece_one)
+    piece_one.set_anchor((0, 0))
+    assert blokus.maybe_place(piece_one)
+
+    # If there is a second player, make sure they can only place a piece
+    # on a different start position.
+    if blokus.num_players == 2:
+        piece_two = Piece(blokus.shapes[ShapeKind.ONE])
+        piece_two.set_anchor((1, 1))
+        assert not blokus.maybe_place(piece_two)
+        piece_two.set_anchor((0, 0))
+        assert not blokus.maybe_place(piece_two)
+        piece_two.set_anchor((13, 13))
+        assert blokus.maybe_place(piece_two)
+
+    # Place an additonal (two) piece(s)
+    piece_two = Piece(blokus.shapes[ShapeKind.TWO])
+    piece_two.set_anchor((1, 1))
+    assert blokus.maybe_place(piece_two)
+
+    if blokus.num_players == 2:
+        piece_four = Piece(blokus.shapes[ShapeKind.TWO])
+        piece_four.set_anchor((12, 11))
+        assert blokus.maybe_place(piece_four)
+
+def test_start_positions_1() -> None:
+    """Test that a piece must be played on the start position. Once the first
+    piece is played on a start postition, the next piece can be played."""
+    blokus = Blokus(1, 10, {(0, 0)})
+    t_place_first_pieces(blokus)
+
+def test_start_positions_2() -> None:
+    """Test that each player must place their first piece on different start
+    positions, and that each can play a piece afterward."""
+    blokus = Blokus(2, 14, {(0, 0), (13, 13)})
+    t_place_first_pieces(blokus)
+
+def test_start_positions_3() -> None:
+    """Same as previous, but with 4 start positions."""
+    blokus = Blokus(2, 14, {(0, 0), (13, 0), (0, 13), (13, 13)})
+    t_place_first_pieces(blokus)
