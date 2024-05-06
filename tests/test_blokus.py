@@ -216,26 +216,26 @@ def test_some_flipped_shapes() -> None:
 
     shape = blokus.shapes[ShapeKind.W]
     shape.flip_horizontally()
-    assert shape.squares == [(-1, -1), (0, -1), (0, 0), (1, 0), (1, 1)]
+    assert shape.squares == [(-1, -1), (0, 0), (0, -1), (1, 1), (1, 0)]
 
     shape = blokus.shapes[ShapeKind.L]
     shape.flip_horizontally()
-    assert shape.squares == [(-2, 0), (-1, 0), (0, 0), (1, -1), (1, 0)]
+    assert shape.squares == [(-2, 0), (-1, 0), (0, 0), (1, 0), (1, -1)]
 
 def test_some_left_rotated_shapes() -> None:
     "Test that some shapes can be left rotated correctly"
     blokus = t_blokus_mini(1)
     shape = blokus.shapes[ShapeKind.Z]
     shape.rotate_left()
-    assert shape.squares == [(-1, 1), (0, -1), (0, 0), (0, 1), (1, -1)]
+    assert shape.squares == [(1, -1), (0, -1), (0, 0), (0, 1), (-1, 1)]
 
     shape = blokus.shapes[ShapeKind.A]
     shape.rotate_left()
-    assert shape.squares == [(-1, 0), (0, -1), (0, 0), (1, 0)]
+    assert shape.squares == [(0, -1), (1, 0), (0, 0), (-1, 0)]
 
     shape = blokus.shapes[ShapeKind.V]
     shape.rotate_left()
-    assert shape.squares == [(-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1)]
+    assert shape.squares == [(-1, -1), (-1, 0), (1, 1), (0, 1), (-1, 1)]
 
 def test_some_right_rotated_shapes() -> None:
     "Test that some shapes can be right rotated correctly"
@@ -246,11 +246,11 @@ def test_some_right_rotated_shapes() -> None:
 
     shape = blokus.shapes[ShapeKind.S]
     shape.rotate_right()
-    assert shape.squares == [(-1, -1), (0, -1), (0, 0), (1, 0)]
+    assert shape.squares == [(0, 0), (1, 0), (-1, -1), (0, -1)]
 
     shape = blokus.shapes[ShapeKind.N]
     shape.rotate_right()
-    assert shape.squares == [(0, -2), (0, -1), (0, 0), (1, 0), (1, 1)]
+    assert shape.squares == [(1, 1), (0, 0), (1, 0), (0, -1), (0, -2)]
 
 def test_some_cardinal_neighbors() -> None:
     """Test that the cardinal neighbors for some shapes can be determined
@@ -455,3 +455,207 @@ def test_start_positions_3() -> None:
     """Same as previous, but with 4 start positions."""
     blokus = Blokus(2, 14, {(0, 0), (13, 0), (0, 13), (13, 13)})
     t_place_first_pieces(blokus)
+
+def test_place_flipped_shape_1() -> None:
+    """Test that a piece that is flipped once is placed correctly"""
+    blokus = t_blokus_mini(1)
+    piece = Piece(blokus.shapes[ShapeKind.SEVEN])
+    piece.set_anchor((2, 2))
+    piece.flip_horizontally()
+    assert piece.squares() == [(1, 3), (1, 2), (2, 2), (3, 2)]
+    assert blokus.maybe_place(piece)
+
+    for r in range(5):
+        for c in range(5):
+            if (r, c) in [(1, 3), (1, 2), (2, 2), (3, 2)]:
+                assert blokus.grid[r][c] == (1, ShapeKind.SEVEN)
+            else:
+                assert blokus.grid[r][c] is None
+
+def test_rotated_shape_1() -> None:
+    """Test that a shape rotated right once is placed correctly"""
+    blokus = t_blokus_mini(1)
+    piece = Piece(blokus.shapes[ShapeKind.A])
+    piece.set_anchor((2, 2))
+    piece.rotate_right()
+    assert piece.squares() == [(2, 3), (1, 2), (2, 2), (3, 2)]
+    assert blokus.maybe_place(piece)
+
+    for r in range(5):
+        for c in range(5):
+            if (r, c) in [(2, 3), (1, 2), (2, 2), (3, 2)]:
+                assert blokus.grid[r][c] == (1, ShapeKind.A)
+            else:
+                assert blokus.grid[r][c] is None
+
+def test_rotated_shape_2() -> None:
+    """Test that a shape rotated right twice is placed correctly"""
+    blokus = t_blokus_mini(1)
+    piece = Piece(blokus.shapes[ShapeKind.A])
+    piece.set_anchor((2, 2))
+    piece.rotate_right()
+    piece.rotate_right()
+    assert piece.squares() == [(3, 2), (2, 3), (2, 2), (2, 1)]
+    assert blokus.maybe_place(piece)
+
+    for r in range(5):
+        for c in range(5):
+            if (r, c) in [(3, 2), (2, 3), (2, 2), (2, 1)]:
+                assert blokus.grid[r][c] == (1, ShapeKind.A)
+            else:
+                assert blokus.grid[r][c] is None
+
+def test_flipped_and_rotated_shape_1() -> None:
+    """Test that a piece that is flipped and then right rotated three times
+    is placed correctly"""
+    blokus = t_blokus_mini(1)
+    piece = Piece(blokus.shapes[ShapeKind.SEVEN])
+    piece.set_anchor((2, 2))
+    piece.flip_horizontally()
+    piece.rotate_right()
+    piece.rotate_right()
+    piece.rotate_right()
+    assert piece.squares() == [(1, 1), (2, 1), (2, 2), (2, 3)]
+    assert blokus.maybe_place(piece)
+
+    for r in range(5):
+        for c in range(5):
+            if (r, c) in [(1, 1), (2, 1), (2, 2), (2, 3)]:
+                assert blokus.grid[r][c] == (1, ShapeKind.SEVEN)
+            else:
+                assert blokus.grid[r][c] is None
+
+def test_flipped_and_rotated_shape_2() -> None:
+    """Test that a piece that is flipped twice and rotated four times is placed
+    correctly"""
+    blokus = t_blokus_mini(1)
+    piece = Piece(blokus.shapes[ShapeKind.SEVEN])
+    piece.set_anchor((2, 2))
+    piece.flip_horizontally()
+    piece.flip_horizontally()
+    piece.rotate_right()
+    piece.rotate_right()
+    piece.rotate_right()
+    piece.rotate_right()
+    assert piece.squares() == [(1, 1), (1, 2), (2, 2), (3, 2)]
+    assert blokus.maybe_place(piece)
+
+    for r in range(5):
+        for c in range(5):
+            if (r, c) in [(1, 1), (1, 2), (2, 2), (3, 2)]:
+                assert blokus.grid[r][c] == (1, ShapeKind.SEVEN)
+            else:
+                assert blokus.grid[r][c] is None
+
+def test_prevent_own_edges_1() -> None:
+    """Test that you cannot play a piece that shares an edge with a previous
+    piece"""
+    blokus = t_blokus_mini(1)
+    piece_one = Piece(blokus.shapes[ShapeKind.ONE])
+    piece_one.set_anchor((0, 0))
+    assert blokus.maybe_place(piece_one)
+    piece_two = Piece(blokus.shapes[ShapeKind.TWO])
+    piece_two.set_anchor((0, 1))
+    assert not blokus.maybe_place(piece_two)
+
+def test_prevent_own_edges_2() -> None:
+    """Check that players can place pieces that share edges with other players'
+    pieces but not their own"""
+    blokus = t_blokus_duo()
+    # Both players place a piece
+    piece_one = Piece(blokus.shapes[ShapeKind.ONE])
+    piece_one.set_anchor((4, 4))
+    assert blokus.maybe_place(piece_one)
+
+    piece_two = Piece(blokus.shapes[ShapeKind.ONE])
+    piece_two.set_anchor((9, 9))
+    assert blokus.maybe_place(piece_two)
+
+    # Both players place another piece that does not touch edges with the first
+    piece_three = Piece(blokus.shapes[ShapeKind.TWO])
+    piece_three.set_anchor((4, 5))
+    assert not blokus.maybe_place(piece_three)
+    piece_three.set_anchor((5, 5))
+    assert blokus.maybe_place(piece_three)
+
+    piece_four = Piece(blokus.shapes[ShapeKind.TWO])
+    piece_four.set_anchor((8, 9))
+    assert not blokus.maybe_place(piece_four)
+    piece_four.set_anchor((8, 8))
+    assert blokus.maybe_place(piece_four)
+
+    # Both players can place a piece that shares an edge with the other player's
+    piece_five = Piece(blokus.shapes[ShapeKind.LETTER_O])
+    piece_five.set_anchor((6, 7))
+    assert blokus.maybe_place(piece_three)
+
+    piece_six = Piece(blokus.shapes[ShapeKind.LETTER_O])
+    piece_six.set_anchor((6, 5))
+    assert blokus.maybe_place(piece_six)
+
+def test_require_own_corners_1() -> None:
+    """Test that a player must place a piece that shares a corner with a
+    previously played one"""
+    blokus = t_blokus_mini(1)
+    piece_one = Piece(blokus.shapes[ShapeKind.ONE])
+    piece_one.set_anchor((0, 0))
+    assert blokus.maybe_place(piece_one)
+    piece_two = Piece(blokus.shapes[ShapeKind.TWO])
+    piece_two.set_anchor((2, 2))
+    assert not blokus.maybe_place(piece_two)
+
+def test_require_own_corners_2() -> None:
+    """Test that players must play pieces that share corners with their own
+    pieces but do not have to share corners with other players' pieces"""
+    blokus = t_blokus_duo()
+    # Both players place a piece
+    piece_one = Piece(blokus.shapes[ShapeKind.ONE])
+    piece_one.set_anchor((4, 4))
+    assert blokus.maybe_place(piece_one)
+
+    piece_two = Piece(blokus.shapes[ShapeKind.ONE])
+    piece_two.set_anchor((9, 9))
+    assert blokus.maybe_place(piece_two)
+
+    # Both players place another piece that shares a corner with the first
+    piece_three = Piece(blokus.shapes[ShapeKind.TWO])
+    piece_three.set_anchor((0, 0))
+    assert not blokus.maybe_place(piece_three)
+    piece_three.set_anchor((5, 5))
+    assert blokus.maybe_place(piece_three)
+
+    piece_four = Piece(blokus.shapes[ShapeKind.TWO])
+    piece_four.set_anchor((12, 12))
+    assert not blokus.maybe_place(piece_four)
+    piece_four.set_anchor((8, 8))
+    assert blokus.maybe_place(piece_four)
+
+    # Both players can place a piece that doesn't share a corner with the other
+    # player's
+    piece_five = Piece(blokus.shapes[ShapeKind.LETTER_O])
+    piece_five.set_anchor((3, 7))
+    assert blokus.maybe_place(piece_three)
+
+    piece_six = Piece(blokus.shapes[ShapeKind.LETTER_O])
+    piece_six.set_anchor((9, 5))
+    assert blokus.maybe_place(piece_six)
+
+def test_some_available_moves() -> None:
+    """Verify available_moves is non-empty, and that it decreases in size after
+    some pieces have been played"""
+    blokus = t_blokus_mini(1)
+    n = blokus.available_moves()
+    assert n != 0
+
+    piece_one = Piece(blokus.shapes[ShapeKind.ONE])
+    piece_one.set_anchor((0, 0))
+    assert blokus.maybe_place(piece_one)
+    piece_two = Piece(blokus.shapes[ShapeKind.TWO])
+    piece_two.set_anchor((1, 1))
+    assert blokus.maybe_place(piece_two)
+
+    assert n > blokus.available_moves()
+
+def test_no_available_moves() -> None:
+    """Test that available_moves is empty after playing all pieces"""
+
