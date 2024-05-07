@@ -246,4 +246,5 @@ class Blokus(BlokusBase):
         to a single Shape that are considered available moves
         (because they may differ in location and orientation).
         """
-        raise NotImplementedError
+        
+        
