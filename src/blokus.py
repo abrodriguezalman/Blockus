@@ -32,6 +32,7 @@ class Blokus(BlokusBase):
     _retired_players: set[int]
     _start_positions: set[Point]
     _players: dict[int, dict[ShapeKind, Shape]]
+    empty_locations : set[tuple[int, int]]
 
     def __init__(self,
                  num_players: int,
@@ -67,6 +68,13 @@ class Blokus(BlokusBase):
         self._grid = [[None] * size for _ in range(size)]
         self._retired_players = set()
 
+        #a set of locations that are empty in the grid, that keeps track of the
+        #empty locations (aybalas request)
+        self.empty_locations: set = set()
+        for x in range(size + 1):
+            for y in range(size + 1):
+                self.empty_locations.add((x,y))
+
         #load in _shapes using the from_string method in piece.py
         self._shapes = {}
         for shape, rep in definitions.items():
@@ -78,6 +86,7 @@ class Blokus(BlokusBase):
         for i in range(num_players):
             self._players[i + 1] = self._shapes.copy()
             self._last_move[i + 1] = None
+
 
     @property
     def shapes(self) -> dict[ShapeKind, Shape]:
@@ -315,6 +324,9 @@ class Blokus(BlokusBase):
                 #change the grid
                 self._grid[x2][y2] = (self.curr_player, piece.shape.kind)
 
+                #change the occupied coordinates set
+                self.empty_locations.remove(x2,y2)
+
             #change who's turn it is - account for retired players
             self._curr_player = (self.curr_player % self.num_players) + 1
             if len(self.retired_players) != self.num_players:
@@ -360,5 +372,11 @@ class Blokus(BlokusBase):
         to a single Shape that are considered available moves
         (because they may differ in location and orientation).
         """
-        self._players[self._curr_player]
+        available_pieces: set = set()
+        for shape in self._players[self._curr_player].items():
+            for loc in self.empty_locations:
+                
+
+        return available_pieces
+
 
