@@ -5,13 +5,8 @@ Modify only the methods marked as TODO.
 """
 import copy
 from typing import Optional
-<<<<<<< HEAD
 import textwrap
-import numpy as np
-=======
-import numpy as np # type: ignore
->>>>>>> 7034aaaf2c6bba0f5ed8f993cd8c114186373956
-
+import numpy as np 
 from shape_definitions import ShapeKind
 
 # A point is represented by row and column numbers (r, c). The
@@ -262,24 +257,8 @@ class Piece:
 
         Raises ValueError if anchor is not set.
         """
-        assert _check_anchor
-
-        c_nghs = set()
-
-        for sq in self.squares:
-            x, y = sq
-            
-            c_nghs.add((x - 1, y))
-            c_nghs.add((x + 1, y))
-            c_nghs.add((x, y - 1))
-            c_nghs.add((x, y + 1))
-
-        for ngh in c_nghs:
-            if ngh in self.squares:
-                c_nghs.remove(ngh)
-    
-        return c_nghs
-
+        # TODO
+        raise NotImplementedError
 
     def intercardinal_neighbors(self) -> set[Point]:
         """
@@ -289,21 +268,5 @@ class Piece:
 
         Raises ValueError if anchor is not set.
         """
-        assert _check_anchor
-        
-        i_nghs = set()
-
-        for sq in self.squares:
-            x, y = sq
-            
-            i_nghs.add((x - 1, y - 1))
-            i_nghs.add((x + 1, y - 1))
-            i_nghs.add((x + 1, y + 1))
-            i_nghs.add((x - 1, y + 1))
-
-        for ngh in i_nghs:
-            if ngh in self.squares:
-                i_nghs.remove(ngh)
-
-        return i_nghs
-    
+        # TODO
+        raise NotImplementedError
