@@ -80,7 +80,12 @@ class Blokus(BlokusBase):
         for shape, rep in definitions.items():
             self._shapes[shape] = Shape.from_string(shape, rep)
 
+<<<<<<< HEAD
+        # a dictionary to keep track of the players and their pieces left
+        # a dictionary to keep track of each player's last piece played
+=======
         #a dictionary to keep track of the players and their pieces left
+>>>>>>> 31a08958f8f1da4ed3f3276e268f9dce60889d1e
         self._players = {}
         self._last_move = {}
         for i in range(num_players):
@@ -284,10 +289,34 @@ class Blokus(BlokusBase):
         """
         if piece.shape.kind not in self.remaining_shapes(self.curr_player):
             raise ValueError
+        
+        #if first piece, must be on a start position
+        if len(self.remaining_shapes(self.curr_player)) == len(self.shapes):
+            for pos in self.start_positions:
+                if pos in piece.squares():
+                    return True
+            return False
+        
+        #corners/edges thing
+        corners = piece.intercardinal_neighbors()
+        edges = piece.cardinal_neighbors()
+        ret_val = False
 
-        #for fake implementation, only check for collisions
-        #don't need to check start position or corners-not-edges condition
-        return not self.any_wall_collisions(piece) and not self.any_collisions(piece)
+        #iterate through grid
+        for row in len(self.grid):
+            for col in len(self.grid[0]):
+                
+                if self.grid[row][col][0] == self.curr_player:
+
+                    #if piece shares an edge, illegal
+                    if (row, col) in edges:
+                        return False
+                    
+                    #piece must share at least one corner
+                    if (row, col) in corners:
+                        ret_val = True
+
+        return not self.any_wall_collisions(piece) and not self.any_collisions(piece) and ret_val
 
 
     def maybe_place(self, piece: Piece) -> bool:
@@ -323,6 +352,9 @@ class Blokus(BlokusBase):
                 x2, y2 = square
                 #change the grid
                 self._grid[x2][y2] = (self.curr_player, piece.shape.kind)
+            
+            # Add the piece to the last move dictionary
+            self._last_move[self.curr_player] = piece.kind
 
                 #change the occupied coordinates set
                 self.empty_locations.remove(x2,y2)
@@ -359,6 +391,13 @@ class Blokus(BlokusBase):
         score: int = 0
         for shape in self._players[player].values():
             score += len(shape.squares)
+
+        # Account for bonuses (negative since we return the opposite)
+        if len(self.remaining_shapes(player)) == 0:
+            if self._last_move[player] == ShapeKind.ONE:
+                score = -20
+            else:
+                score = -15
         return -1 * score
 
     def available_moves(self) -> set[Piece]:
