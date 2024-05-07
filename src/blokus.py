@@ -73,8 +73,6 @@ class Blokus(BlokusBase):
             self._shapes[shape] = Shape.from_string(shape, rep)
 
         #a dictionary to keep track of the players and their pieces left
-        #since this implementation only takes 2 players, this dictionary is
-        #hardcoded to have two players. To be changed later
         self._players = {}
         self._last_move = {}
         for i in range(num_players):
@@ -362,4 +360,5 @@ class Blokus(BlokusBase):
         to a single Shape that are considered available moves
         (because they may differ in location and orientation).
         """
-        self._players: 
+        self._players[self._curr_player]
+
