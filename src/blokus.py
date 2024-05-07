@@ -1,6 +1,6 @@
 from typing import Optional
 
-from shape_definitions import ShapeKind
+from shape_definitions import ShapeKind, definitions
 from piece import Point, Shape, Piece
 from base import BlokusBase
 
@@ -51,7 +51,7 @@ class Blokus(BlokusBase):
         """
         #check for ValueErrors, as specified in BlokusBase
         #for fake implementation, only support 1-2 players
-        if num_players < 1 or num_players > 2:
+        if num_players < 1 or num_players > 4:
             raise ValueError
         if size < 5:
             raise ValueError
