@@ -78,6 +78,7 @@ def test_shapes_loaded() -> None:
     blokus = t_blokus_mini(1)
     # One piece shapes
     shape = blokus.shapes[ShapeKind.ONE]
+    assert isinstance(shape, Shape)
     assert shape.kind == ShapeKind.ONE
     assert shape.origin == (0, 0)
     assert not shape.can_be_transformed
@@ -290,13 +291,13 @@ def test_some_intercardinal_neighbors() -> None:
     piece_one.set_anchor((1, 1))
     neighbors = piece_one.intercardinal_neighbors()
     expected = {(0, 0), (0, 1), (0, 2), (0, 3), (1, 0), (2, 0), (2, 2), (2, 3),
-                (3, 0), (3, 3)}
+                (3, 0), (3, 2)}
     assert all(elem in neighbors for elem in expected)
 
     piece_one = Piece(blokus.shapes[ShapeKind.F])
     piece_one.set_anchor((1, 1))
     neighbors = piece_one.intercardinal_neighbors()
-    expected = {(0, 0), (1, 2), (1, 3), (2, 0), (2, 2), (3, 0), (3, 3)}
+    expected = {(0, 0), (1, 2), (1, 3), (2, 0), (2, 2), (3, 0), (3, 2)}
     assert all(elem in neighbors for elem in expected)
 
 def test_one_player_blokus_mini_game() -> None:

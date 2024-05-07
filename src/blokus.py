@@ -80,7 +80,8 @@ class Blokus(BlokusBase):
         for shape, rep in definitions.items():
             self._shapes[shape] = Shape.from_string(shape, rep)
 
-        #a dictionary to keep track of the players and their pieces left
+        # a dictionary to keep track of the players and their pieces left
+        # a dictionary to keep track of each player's last piece played
         self._players = {}
         self._last_move = {}
         for i in range(num_players):
@@ -298,10 +299,11 @@ class Blokus(BlokusBase):
         ret_val = False
 
         #iterate through grid
-        for row in len(self.grid):
-            for col in len(self.grid[0]):
+        for row in range(self.size):
+            for col in range(self.size):
+                current = self.grid[row][col]
                 
-                if self.grid[row][col][0] == self.curr_player:
+                if current is not None and current[0] == self.curr_player:
 
                     #if piece shares an edge, illegal
                     if (row, col) in edges:
@@ -349,7 +351,7 @@ class Blokus(BlokusBase):
                 self._grid[x2][y2] = (self.curr_player, piece.shape.kind)
             
             # Add the piece to the last move dictionary
-            self._last_move[self.curr_player] = piece.kind
+            self._last_move[self.curr_player] = piece.shape.kind
 
             #change the occupied coordinates set
             self.empty_locations.remove(x2,y2)
