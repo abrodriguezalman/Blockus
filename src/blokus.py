@@ -72,9 +72,12 @@ class Blokus(BlokusBase):
         for shape, rep in definitions.items():
             self._shapes[shape] = Shape.from_string(shape, rep)
 
+<<<<<<< HEAD
+        # a dictionary to keep track of the players and their pieces left
+        # a dictionary to keep track of each player's last piece played
+=======
         #a dictionary to keep track of the players and their pieces left
-        #since this implementation only takes 2 players, this dictionary is
-        #hardcoded to have two players. To be changed later
+>>>>>>> 31a08958f8f1da4ed3f3276e268f9dce60889d1e
         self._players = {}
         self._last_move = {}
         for i in range(num_players):
@@ -340,6 +343,9 @@ class Blokus(BlokusBase):
                 x2, y2 = square
                 #change the grid
                 self._grid[x2][y2] = (self.curr_player, piece.shape.kind)
+            
+            # Add the piece to the last move dictionary
+            self._last_move[self.curr_player] = piece.kind
 
             #change who's turn it is - account for retired players
             self._curr_player = (self.curr_player % self.num_players) + 1
@@ -373,6 +379,13 @@ class Blokus(BlokusBase):
         score: int = 0
         for shape in self._players[player].values():
             score += len(shape.squares)
+
+        # Account for bonuses (negative since we return the opposite)
+        if len(self.remaining_shapes(player)) == 0:
+            if self._last_move[player] == ShapeKind.ONE:
+                score = -20
+            else:
+                score = -15
         return -1 * score
 
     def available_moves(self) -> set[Piece]:
@@ -386,4 +399,5 @@ class Blokus(BlokusBase):
         to a single Shape that are considered available moves
         (because they may differ in location and orientation).
         """
-        raise NotImplementedError
+        self._players[self._curr_player]
+
