@@ -280,7 +280,7 @@ class Blokus(BlokusBase):
         #if first piece, must be on a start position
         if len(self.remaining_shapes(self.curr_player)) == len(self.shapes):
             for pos in self.start_positions:
-                if pos in piece.squares():
+                if pos in piece.squares() and self.grid[pos[0]][pos[1]] is None:
                     return True
             return False
         
