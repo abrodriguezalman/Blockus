@@ -302,6 +302,5 @@ class Piece:
             if sq in i_nghs:
                 i_nghs.remove(sq)
 
-        print(i_nghs)
         return i_nghs
     
