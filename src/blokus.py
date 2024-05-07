@@ -276,10 +276,34 @@ class Blokus(BlokusBase):
         """
         if piece.shape.kind not in self.remaining_shapes(self.curr_player):
             raise ValueError
+        
+        #if first piece, must be on a start position
+        if len(self.remaining_shapes(self.curr_player)) == len(self.shapes):
+            for pos in self.start_positions:
+                if pos in piece.squares():
+                    return True
+            return False
+        
+        #corners/edges thing
+        corners = piece.intercardinal_neighbors()
+        edges = piece.cardinal_neighbors()
+        ret_val = False
 
-        #for fake implementation, only check for collisions
-        #don't need to check start position or corners-not-edges condition
-        return not self.any_wall_collisions(piece) and not self.any_collisions(piece)
+        #iterate through grid
+        for row in len(self.grid):
+            for col in len(self.grid[0]):
+                
+                if self.grid[row][col][0] == self.curr_player:
+
+                    #if piece shares an edge, illegal
+                    if (row, col) in edges:
+                        return False
+                    
+                    #piece must share at least one corner
+                    if (row, col) in corners:
+                        ret_val = True
+
+        return not self.any_wall_collisions(piece) and not self.any_collisions(piece) and ret_val
 
 
     def maybe_place(self, piece: Piece) -> bool:
