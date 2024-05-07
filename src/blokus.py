@@ -290,10 +290,11 @@ class Blokus(BlokusBase):
         ret_val = False
 
         #iterate through grid
-        for row in len(self.grid):
-            for col in len(self.grid[0]):
+        for row in range(self.size):
+            for col in range(self.size):
+                current = self.grid[row][col]
                 
-                if self.grid[row][col][0] == self.curr_player:
+                if current is not None and current[0] == self.curr_player:
 
                     #if piece shares an edge, illegal
                     if (row, col) in edges:
@@ -396,3 +397,4 @@ class Blokus(BlokusBase):
         (because they may differ in location and orientation).
         """
         self._players[self._curr_player]
+
