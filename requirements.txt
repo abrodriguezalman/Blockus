@@ -16,3 +16,4 @@ pytest-mypy>=0.10.3
 types-colorama>=0.4.15.12
 types-pynput
 rich
+numpy

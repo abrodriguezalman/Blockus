@@ -7,12 +7,12 @@ import sys
 from typing import Union, Optional
 import random
 import math
-import distinctipy
 import pygame
 import pygame.gfxdraw
 import click
 from base import BlokusBase
 from fakes import BlokusStub, BlokusFake
+from blokus import Blokus
 from shape_definitions import ShapeKind
 from piece import Piece
 #from bot import RandomBot, SmartBot
@@ -324,11 +324,10 @@ def cmd(size: int, mode: str) -> None:
     else:
         s_pos = {(0,0), (0,size-1), (size-1,0), (size-1,size-1)}
 
-    blokus = BlokusFake(num, size, s_pos)
+    blokus = Blokus(num, size, s_pos)
 
     #create list of players and assign random colors
     players = list()
-    col_list = distinctipy.get_colors(blokus.num_players, [(229, 204, 255), (102,0,204)])
     for x in range(1, blokus.num_players+1):
         #generate a random color
         #must check for duplicates + make sure color is not border or background color - do later
