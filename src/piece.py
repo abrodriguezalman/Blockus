@@ -257,8 +257,24 @@ class Piece:
 
         Raises ValueError if anchor is not set.
         """
-        # TODO
-        raise NotImplementedError
+        assert _check_anchor
+
+        c_nghs = set()
+
+        for sq in self.squares:
+            x, y = sq
+            
+            c_nghs.add((x - 1, y))
+            c_nghs.add((x + 1, y))
+            c_nghs.add((x, y - 1))
+            c_nghs.add((x, y + 1))
+
+        for ngh in c_nghs:
+            if ngh in self.squares:
+                c_nghs.remove(ngh)
+    
+        return c_nghs
+
 
     def intercardinal_neighbors(self) -> set[Point]:
         """
@@ -268,5 +284,21 @@ class Piece:
 
         Raises ValueError if anchor is not set.
         """
-        # TODO
-        raise NotImplementedError
+        assert _check_anchor
+        
+        i_nghs = set()
+
+        for sq in self.squares:
+            x, y = sq
+            
+            i_nghs.add((x - 1, y - 1))
+            i_nghs.add((x + 1, y - 1))
+            i_nghs.add((x + 1, y + 1))
+            i_nghs.add((x - 1, y + 1))
+
+        for ngh in i_nghs:
+            if ngh in self.squares:
+                i_nghs.remove(ngh)
+
+        return i_nghs
+    
