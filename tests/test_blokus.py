@@ -78,6 +78,7 @@ def test_shapes_loaded() -> None:
     blokus = t_blokus_mini(1)
     # One piece shapes
     shape = blokus.shapes[ShapeKind.ONE]
+    assert isinstance(shape, Shape)
     assert shape.kind == ShapeKind.ONE
     assert shape.origin == (0, 0)
     assert not shape.can_be_transformed
