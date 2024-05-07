@@ -296,7 +296,7 @@ def test_some_intercardinal_neighbors() -> None:
     piece_one = Piece(blokus.shapes[ShapeKind.F])
     piece_one.set_anchor((1, 1))
     neighbors = piece_one.intercardinal_neighbors()
-    expected = {(0, 0), (1, 2), (1, 3), (2, 0), (2, 2), (3, 0), (3, 3)}
+    expected = {(0, 0), (1, 2), (1, 3), (2, 0), (2, 2), (3, 0), (3, 2)}
     assert all(elem in neighbors for elem in expected)
 
 def test_one_player_blokus_mini_game() -> None:

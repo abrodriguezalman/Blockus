@@ -152,7 +152,6 @@ class Shape:
             v = np.array((s[i][0], s[i][1]))
             s[i] = (r.dot(v)[0], r.dot(v)[1])
 
-
 class Piece:
     """
     A Piece takes a Shape and orients it on the board.
@@ -257,8 +256,25 @@ class Piece:
 
         Raises ValueError if anchor is not set.
         """
-        # TODO
-        raise NotImplementedError
+        self._check_anchor()
+
+        c_nghs = set()
+
+        for sq in self.squares():
+            x, y = sq
+            if x > 0:
+                c_nghs.add((x - 1, y))
+            c_nghs.add((x + 1, y))
+            if y > 0:
+                c_nghs.add((x, y - 1))
+            c_nghs.add((x, y + 1))
+
+        for sq in self.squares():
+            if sq in c_nghs:
+                c_nghs.remove(sq)
+    
+        return c_nghs
+
 
     def intercardinal_neighbors(self) -> set[Point]:
         """
@@ -268,5 +284,24 @@ class Piece:
 
         Raises ValueError if anchor is not set.
         """
-        # TODO
-        raise NotImplementedError
+        self._check_anchor()
+        
+        i_nghs = set()
+
+        for sq in self.squares():
+            x, y = sq
+            if x > 0 and y > 0:
+                i_nghs.add((x - 1, y - 1))
+            if y > 0:
+                i_nghs.add((x + 1, y - 1))
+            i_nghs.add((x + 1, y + 1))
+            if x > 0:
+                i_nghs.add((x - 1, y + 1))
+
+        for sq in self.squares():
+            if sq in i_nghs:
+                i_nghs.remove(sq)
+
+        print(i_nghs)
+        return i_nghs
+    
