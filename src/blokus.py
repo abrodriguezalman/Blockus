@@ -32,7 +32,7 @@ class Blokus(BlokusBase):
     _retired_players: set[int]
     _start_positions: set[Point]
     _players: dict[int, dict[ShapeKind, Shape]]
-    empty_locations : set[tuple[int, int]]
+    empty_locations : set[Point]
 
     def __init__(self,
                  num_players: int,
@@ -80,12 +80,7 @@ class Blokus(BlokusBase):
         for shape, rep in definitions.items():
             self._shapes[shape] = Shape.from_string(shape, rep)
 
-<<<<<<< HEAD
-        # a dictionary to keep track of the players and their pieces left
-        # a dictionary to keep track of each player's last piece played
-=======
         #a dictionary to keep track of the players and their pieces left
->>>>>>> 31a08958f8f1da4ed3f3276e268f9dce60889d1e
         self._players = {}
         self._last_move = {}
         for i in range(num_players):
@@ -356,8 +351,8 @@ class Blokus(BlokusBase):
             # Add the piece to the last move dictionary
             self._last_move[self.curr_player] = piece.kind
 
-                #change the occupied coordinates set
-                self.empty_locations.remove(x2,y2)
+            #change the occupied coordinates set
+            self.empty_locations.remove(x2,y2)
 
             #change who's turn it is - account for retired players
             self._curr_player = (self.curr_player % self.num_players) + 1
@@ -413,9 +408,18 @@ class Blokus(BlokusBase):
         """
         available_pieces: set = set()
         for shape in self._players[self._curr_player].items():
+            p = Piece(shape)
             for loc in self.empty_locations:
-                
-
+                p.set_anchor(loc)
+                for _ in range(3):
+                    p.rotate_right()
+                    if self.legal_to_place(p):
+                        available_pieces.add(p)
+                p.flip_horizontally()
+                if self.legal_to_place(p):
+                    available_pieces.add(p)
+                for _ in range(3):
+                    p.rotate_left()
+                    if self.legal_to_place(p):
+                        available_pieces.add(p)
         return available_pieces
-
-
