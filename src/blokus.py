@@ -75,7 +75,11 @@ class Blokus(BlokusBase):
         #a dictionary to keep track of the players and their pieces left
         #since this implementation only takes 2 players, this dictionary is
         #hardcoded to have two players. To be changed later
-        self._players = {1: self._shapes.copy(), 2: self._shapes.copy()}
+        self._players = {}
+        self._last_move = {}
+        for i in range(num_players):
+            self._players[i + 1] = self._shapes.copy()
+            self._last_move[i + 1] = None
 
     @property
     def shapes(self) -> dict[ShapeKind, Shape]:
