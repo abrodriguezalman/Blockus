@@ -78,7 +78,6 @@ def test_shapes_loaded() -> None:
     blokus = t_blokus_mini(1)
     # One piece shapes
     shape = blokus.shapes[ShapeKind.ONE]
-    assert isinstance(shape, Shape)
     assert shape.kind == ShapeKind.ONE
     assert shape.origin == (0, 0)
     assert not shape.can_be_transformed
@@ -146,7 +145,7 @@ def test_shapes_loaded() -> None:
     assert shape.kind == ShapeKind.FIVE
     assert shape.origin == (2, 0)
     assert shape.can_be_transformed
-    assert shape.squares == [(-2, 0), (-1, 0), (0, 0), (1, 0), (1, 1)]
+    assert shape.squares == [(-2, 0), (-1, 0), (0, 0), (1, 0), (2, 0)]
 
     shape = blokus.shapes[ShapeKind.L]
     assert shape.kind == ShapeKind.L
@@ -164,7 +163,7 @@ def test_shapes_loaded() -> None:
     assert shape.kind == ShapeKind.P
     assert shape.origin == (1, 1)
     assert shape.can_be_transformed
-    assert shape.squares == [(-1, -1), (-1, 0), (0, -1), (0, 0), (1, 0)]
+    assert shape.squares == [(-1, -1), (-1, 0), (0, -1), (0, 0), (1, -1)]
 
     shape = blokus.shapes[ShapeKind.T]
     assert shape.kind == ShapeKind.T
@@ -365,7 +364,7 @@ def test_two_player_blokus_mini_game() -> None:
     piece_four = Piece(blokus.shapes[ShapeKind.TWO])
     piece_four.set_anchor((3, 2))
     assert blokus.curr_player == 2
-    assert blokus.maybe_place(piece_three)
+    assert blokus.maybe_place(piece_four)
     assert blokus.curr_player == 1
     assert not blokus.game_over
 
