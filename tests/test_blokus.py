@@ -581,13 +581,13 @@ def test_prevent_own_edges_2() -> None:
     piece_four = Piece(blokus.shapes[ShapeKind.TWO])
     piece_four.set_anchor((8, 9))
     assert not blokus.maybe_place(piece_four)
-    piece_four.set_anchor((8, 8))
+    piece_four.set_anchor((8, 7))
     assert blokus.maybe_place(piece_four)
 
     # Both players can place a piece that shares an edge with the other player's
     piece_five = Piece(blokus.shapes[ShapeKind.LETTER_O])
     piece_five.set_anchor((6, 7))
-    assert blokus.maybe_place(piece_three)
+    assert blokus.maybe_place(piece_five)
 
     piece_six = Piece(blokus.shapes[ShapeKind.LETTER_O])
     piece_six.set_anchor((6, 5))
@@ -627,14 +627,14 @@ def test_require_own_corners_2() -> None:
     piece_four = Piece(blokus.shapes[ShapeKind.TWO])
     piece_four.set_anchor((12, 12))
     assert not blokus.maybe_place(piece_four)
-    piece_four.set_anchor((8, 8))
+    piece_four.set_anchor((8, 7))
     assert blokus.maybe_place(piece_four)
 
     # Both players can place a piece that doesn't share a corner with the other
     # player's
     piece_five = Piece(blokus.shapes[ShapeKind.LETTER_O])
     piece_five.set_anchor((3, 7))
-    assert blokus.maybe_place(piece_three)
+    assert blokus.maybe_place(piece_five)
 
     piece_six = Piece(blokus.shapes[ShapeKind.LETTER_O])
     piece_six.set_anchor((9, 5))
