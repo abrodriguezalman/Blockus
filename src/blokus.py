@@ -72,12 +72,8 @@ class Blokus(BlokusBase):
         for shape, rep in definitions.items():
             self._shapes[shape] = Shape.from_string(shape, rep)
 
-<<<<<<< HEAD
         # a dictionary to keep track of the players and their pieces left
         # a dictionary to keep track of each player's last piece played
-=======
-        #a dictionary to keep track of the players and their pieces left
->>>>>>> 31a08958f8f1da4ed3f3276e268f9dce60889d1e
         self._players = {}
         self._last_move = {}
         for i in range(num_players):
@@ -376,4 +372,3 @@ class Blokus(BlokusBase):
         (because they may differ in location and orientation).
         """
         self._players[self._curr_player]
-

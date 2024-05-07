@@ -290,7 +290,7 @@ def test_some_intercardinal_neighbors() -> None:
     piece_one.set_anchor((1, 1))
     neighbors = piece_one.intercardinal_neighbors()
     expected = {(0, 0), (0, 1), (0, 2), (0, 3), (1, 0), (2, 0), (2, 2), (2, 3),
-                (3, 0), (3, 3)}
+                (3, 0), (3, 2)}
     assert all(elem in neighbors for elem in expected)
 
     piece_one = Piece(blokus.shapes[ShapeKind.F])
