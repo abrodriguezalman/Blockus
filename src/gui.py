@@ -126,14 +126,14 @@ def draw_board(surface: pygame.surface.Surface, blokus: BlokusBase, players: lis
                                  rect=rect, width=BORDER)
     
     #draw text at the top of the board to indicate which player's turn it is
+    p = players[blokus.curr_player-1]
     font = pygame.font.Font(None, 40)
-    t = "Player " + str(blokus.curr_player) + "'s turn"
-    text = font.render(t, True, (0, 0, 0))
+    t = "Player " + str(p.num) + "'s turn"
+    text = font.render(t, True, p.color)
     surface.blit(text, ((surface.get_width()-text.get_width())/2, SPACING/8))
 
 
     #draw pending piece
-    p = players[blokus.curr_player-1]
     for square in p.pending_piece.squares():
         rect = (square[0] * s + SPACING/2, square[1] * s + SPACING/2, s, s)
         pygame.gfxdraw.box(surface, rect, p.color)
@@ -215,7 +215,12 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
     if blokus.size > 15:
         s = SMALL_SIDE * blokus.size
 
-    surface = pygame.display.set_mode((s + SPACING, s + 2*SPACING))
+    #calculate # of pieces per row
+    s_bank = int(1.5*(s/blokus.size))    #size of a bank square
+    sq_per_row = math.floor((s)/s_bank)
+    nrow = math.ceil(21 / sq_per_row)
+
+    surface = pygame.display.set_mode((s + SPACING, s + nrow*s_bank))
 
     while not blokus.game_over:
         p = players[blokus.curr_player-1]
