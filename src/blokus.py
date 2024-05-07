@@ -1,6 +1,6 @@
 from typing import Optional
 
-from shape_definitions import ShapeKind
+from shape_definitions import ShapeKind, definitions
 from piece import Point, Shape, Piece
 from base import BlokusBase
 
@@ -51,7 +51,7 @@ class Blokus(BlokusBase):
         """
         #check for ValueErrors, as specified in BlokusBase
         #for fake implementation, only support 1-2 players
-        if num_players < 1 or num_players > 2:
+        if num_players < 1 or num_players > 4:
             raise ValueError
         if size < 5:
             raise ValueError
@@ -72,8 +72,12 @@ class Blokus(BlokusBase):
         for shape, rep in definitions.items():
             self._shapes[shape] = Shape.from_string(shape, rep)
 
+<<<<<<< HEAD
         # a dictionary to keep track of the players and their pieces left
         # a dictionary to keep track of each player's last piece played
+=======
+        #a dictionary to keep track of the players and their pieces left
+>>>>>>> 31a08958f8f1da4ed3f3276e268f9dce60889d1e
         self._players = {}
         self._last_move = {}
         for i in range(num_players):
@@ -371,4 +375,5 @@ class Blokus(BlokusBase):
         to a single Shape that are considered available moves
         (because they may differ in location and orientation).
         """
-        raise NotImplementedError
+        self._players[self._curr_player]
+
