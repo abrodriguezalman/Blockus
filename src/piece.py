@@ -5,12 +5,8 @@ Modify only the methods marked as TODO.
 """
 import copy
 from typing import Optional
-<<<<<<< HEAD
 import textwrap
 import numpy as np
-=======
-import numpy as np # type: ignore
->>>>>>> 7034aaaf2c6bba0f5ed8f993cd8c114186373956
 
 from shape_definitions import ShapeKind
 
@@ -157,7 +153,6 @@ class Shape:
             v = np.array((s[i][0], s[i][1]))
             s[i] = (r.dot(v)[0], r.dot(v)[1])
 
-
 class Piece:
     """
     A Piece takes a Shape and orients it on the board.
@@ -262,21 +257,22 @@ class Piece:
 
         Raises ValueError if anchor is not set.
         """
-        assert _check_anchor
+        self._check_anchor()
 
         c_nghs = set()
 
-        for sq in self.squares:
+        for sq in self.squares():
             x, y = sq
-            
-            c_nghs.add((x - 1, y))
+            if x > 0:
+                c_nghs.add((x - 1, y))
             c_nghs.add((x + 1, y))
-            c_nghs.add((x, y - 1))
+            if y > 0:
+                c_nghs.add((x, y - 1))
             c_nghs.add((x, y + 1))
 
-        for ngh in c_nghs:
-            if ngh in self.squares:
-                c_nghs.remove(ngh)
+        for sq in self.squares():
+            if sq in c_nghs:
+                c_nghs.remove(sq)
     
         return c_nghs
 
@@ -289,21 +285,24 @@ class Piece:
 
         Raises ValueError if anchor is not set.
         """
-        assert _check_anchor
+        self._check_anchor()
         
         i_nghs = set()
 
-        for sq in self.squares:
+        for sq in self.squares():
             x, y = sq
-            
-            i_nghs.add((x - 1, y - 1))
-            i_nghs.add((x + 1, y - 1))
+            if x > 0 and y > 0:
+                i_nghs.add((x - 1, y - 1))
+            if y > 0:
+                i_nghs.add((x + 1, y - 1))
             i_nghs.add((x + 1, y + 1))
-            i_nghs.add((x - 1, y + 1))
+            if x > 0:
+                i_nghs.add((x - 1, y + 1))
 
-        for ngh in i_nghs:
-            if ngh in self.squares:
-                i_nghs.remove(ngh)
+        for sq in self.squares():
+            if sq in i_nghs:
+                i_nghs.remove(sq)
 
+        print(i_nghs)
         return i_nghs
     
