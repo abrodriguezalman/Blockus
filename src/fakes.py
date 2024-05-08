@@ -276,6 +276,7 @@ class BlokusFake(BlokusBase):
     _retired_players: set[int]
     _start_positions: set[Point]
     _players: dict[int, dict[ShapeKind, Shape]]
+    empty_locations : set[Point]
 
     def __init__(self,
                  num_players: int,
@@ -299,6 +300,13 @@ class BlokusFake(BlokusBase):
         self._curr_player = 1
         self._grid = [[None] * size for _ in range(size)]
         self._retired_players = set()
+
+        #a set of locations that are empty in the grid, that keeps track of the
+        #empty locations (aybalas request)
+        self.empty_locations: set[Point] = set()
+        for x in range(size + 1):
+            for y in range(size + 1):
+                self.empty_locations.add((x,y))
 
         #load in _shapes using the from_string method in piece.py
         self._shapes = {}
@@ -475,7 +483,7 @@ class BlokusFake(BlokusBase):
         piece._check_anchor()
         assert not piece.anchor is None
         anchor_row, anchor_col = piece.anchor
-
+        
         if anchor_row < 0 or anchor_col < 0 \
         or anchor_row > self.size - 1 or anchor_col > self.size - 1:
             raise ValueError
@@ -505,9 +513,10 @@ class BlokusFake(BlokusBase):
         Raises ValueError if the player has already
         played a piece with this shape.
         """
+        
         if piece.shape.kind not in self.remaining_shapes(self.curr_player):
             raise ValueError
-
+        
         #for fake implementation, only check for collisions
         #don't need to check start position or corners-not-edges condition
         return not self.any_wall_collisions(piece) and not self.any_collisions(piece)
@@ -532,6 +541,7 @@ class BlokusFake(BlokusBase):
         """
 
         #check if the piece is legal to place
+        
         if self.legal_to_place(piece):
 
             #check if the piece we want to play is played before (or available
@@ -546,6 +556,9 @@ class BlokusFake(BlokusBase):
                 x2, y2 = square
                 #change the grid
                 self._grid[x2][y2] = (self.curr_player, piece.shape.kind)
+
+                #change the occupied coordinates set
+                self.empty_locations.remove((x2,y2))
 
             #change who's turn it is - account for retired players
             self._curr_player = (self.curr_player % self.num_players) + 1
@@ -592,4 +605,12 @@ class BlokusFake(BlokusBase):
         to a single Shape that are considered available moves
         (because they may differ in location and orientation).
         """
-        raise NotImplementedError
+        available_pieces: list = []
+        shapes = self._players[self._curr_player].values()
+        for shape in shapes:
+            p = Piece(shape)
+            for loc in self.empty_locations:
+                p.set_anchor(loc)
+                if self.legal_to_place(p):
+                    available_pieces.append(p)
+        return available_pieces

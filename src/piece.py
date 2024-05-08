@@ -304,3 +304,4 @@ class Piece:
                 i_nghs.remove(sq)
 
         return i_nghs
+    
