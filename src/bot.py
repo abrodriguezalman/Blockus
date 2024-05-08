@@ -53,9 +53,11 @@ def ni_bot(blokus: "BlokusFake") -> None:
             if blokus.maybe_place(piece):
                 print("bot played a piece")
                 return None
+        print("1: retiring")
         blokus.retire()
         return None
     else:
+        print("1: retiring")
         blokus.retire()
     
     return "I played"
