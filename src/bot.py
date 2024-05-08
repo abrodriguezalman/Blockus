@@ -15,9 +15,7 @@ def rand_pos() -> Point:
     return (random.randint(1, 13), random.randint(1, 13))
 
 def game() -> list[int]:
-    game = BlokusFake(2, 11, {(0,0), (5,5)})
-    
-    
+    game = BlokusFake(2, 6, {(0,0), (5,5)})
     
     while not game.game_over:
         print("bot1 starts playing")
@@ -26,6 +24,8 @@ def game() -> list[int]:
         print("bot2 starts playing")
         ni_bot(game)
         print("bot2 played")
+    
+    print(game.grid)
     return game.winners
 
 
