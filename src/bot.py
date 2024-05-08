@@ -15,7 +15,7 @@ def rand_pos() -> Point:
     return (random.randint(1, 13), random.randint(1, 13))
 
 def game() -> list[int]:
-    game = BlokusFake(2, 6, {(0,0), (5,5)})
+    game = BlokusFake(2, 4, {(0,0), (3,3)})
     
     while not game.game_over:
         print("bot1 starts playing")
@@ -49,7 +49,6 @@ def ni_bot(blokus: "BlokusFake") -> None:
     if len(avail_moves) != 0:
         for _ in range(len(avail_moves)):
             piece = avail_moves.pop()
-            
             if blokus.maybe_place(piece):
                 print("bot played a piece")
                 return None
@@ -57,8 +56,7 @@ def ni_bot(blokus: "BlokusFake") -> None:
         return None
     else:
         blokus.retire()
-    
-    return "I played"
+    return None
         
     
 
