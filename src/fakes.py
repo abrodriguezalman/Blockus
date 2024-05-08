@@ -304,8 +304,8 @@ class BlokusFake(BlokusBase):
         #a set of locations that are empty in the grid, that keeps track of the
         #empty locations (aybalas request)
         self.empty_locations: set[Point] = set()
-        for x in range(size + 1):
-            for y in range(size + 1):
+        for x in range(size):
+            for y in range(size):
                 self.empty_locations.add((x,y))
 
         #load in _shapes using the from_string method in piece.py
@@ -491,9 +491,10 @@ class BlokusFake(BlokusBase):
             raise ValueError
 
         #check if the necessary grid space is empty
-        for x, y in piece.squares():
-            if self.grid[x][y] is not None:
-                return True
+        if not self.any_wall_collisions(piece):
+            for x, y in piece.squares():
+                if self.grid[x][y] is not None:
+                    return True
         return False
 
     def legal_to_place(self, piece: Piece) -> bool:
@@ -605,12 +606,15 @@ class BlokusFake(BlokusBase):
         to a single Shape that are considered available moves
         (because they may differ in location and orientation).
         """
-        available_pieces: list = []
+        available_pieces: set = set()
         shapes = self._players[self._curr_player].values()
+        
         for shape in shapes:
             p = Piece(shape)
             for loc in self.empty_locations:
-                p.set_anchor(loc)
-                if self.legal_to_place(p):
-                    available_pieces.append(p)
+                new_p = Piece(shape)
+                new_p.set_anchor(loc)
+                if self.legal_to_place(new_p):
+                    available_pieces.add(new_p)
+                    
         return available_pieces

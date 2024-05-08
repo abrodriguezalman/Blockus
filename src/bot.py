@@ -14,18 +14,16 @@ times = int(sys.argv[1])
 def rand_pos() -> Point:
     return (random.randint(1, 13), random.randint(1, 13))
 
-def game() -> list[int]:
-    game = BlokusFake(2, 4, {(0,0), (3,3)})
+def game() -> list[int] | list[None]:
+    game = BlokusFake(2, 10, {(0,0), (9,9)})
     
     while not game.game_over:
-        print("bot1 starts playing")
+        #bot 1
         ni_bot(game)
-        print("bot1 played")
-        print("bot2 starts playing")
-        ni_bot(game)
-        print("bot2 played")
-    
-    print(game.grid)
+
+        #bot 2
+        s_bot(game)
+
     return game.winners
 
 
@@ -45,27 +43,63 @@ def ni_bot(blokus: "BlokusFake") -> None:
     """
     avail_moves: set[Piece] = blokus.available_moves()
 
-    print(len(avail_moves))
     if len(avail_moves) != 0:
         for _ in range(len(avail_moves)):
-            piece = avail_moves.pop()
-            if blokus.maybe_place(piece):
-                print("bot played a piece")
+            piece = random.choice(list(avail_moves))
+            
+            if blokus.maybe_place(piece): 
                 return None
         blokus.retire()
         return None
     else:
         blokus.retire()
     return None
-        
+
+
+
+
+def s_bot(blokus: "BlokusFake") -> None:
+    """
+    Satisfactory bot. Chooses pieces using the function choose_larger, 
+    where the bot prefers the play the largest piece it can play.
+
+    Inputs: 
+        blokus [BlokusFake]: the blokus game being played
     
+    Returns [None]: Just plays or retires
+    """
+    avail_moves: set[Piece] = blokus.available_moves()
+    length = len(avail_moves)
+    if length != 0:
+        for _ in range(length):
+            piece = choose_larger(avail_moves)
+            if blokus.maybe_place(piece):
+                #print(f"I played a piece: {len(piece.squares())}")
+                return None
+            else:
+                avail_moves.remove(piece)
 
-def s_bot(blokus: "BlokusFake"):
-    avail_moves = list(blokus.available_moves())
-    return 
+        blokus.retire()
+        return None
+    else:
 
+        blokus.retire()
+    return None
 
-def main():
+def choose_larger(pcs: set[Piece]) -> Piece:
+    max_squares: int = 0
+    max_piece = None
+    for piece in pcs: 
+        cur_len = len(piece.squares())
+        if cur_len == 5:
+            return piece
+        if cur_len > max_squares:
+            max_squares = cur_len
+            max_piece = piece
+        
+    return max_piece
+
+def main() -> None:
     win0 = 0
     win1 = 0
     tie = 0
@@ -84,3 +118,22 @@ def main():
 
 print(main())
 
+#this is a version of s-bot I want to keep in the file
+"""
+def s2_bot(blokus: "BlokusFake"):
+    avail_moves: set[Piece] = blokus.available_moves()
+    length = len(avail_moves)
+    if length != 0:
+        for _ in range(length):
+            piece = avail_moves.pop(-1) 
+            if blokus.maybe_place(piece):
+                print(f"I played a piece: {len(piece.squares())}")
+                return None
+
+        blokus.retire()
+        return None
+    else:
+
+        blokus.retire()
+    return None
+"""

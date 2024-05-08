@@ -83,7 +83,7 @@ class Blokus(BlokusBase):
         # a dictionary to keep track of the players and their pieces left
         # a dictionary to keep track of each player's last piece played
         self._players = {}
-        self._last_move = {}
+        self._last_move: dict[int, None] = {}
         for i in range(num_players):
             self._players[i + 1] = self._shapes.copy()
             self._last_move[i + 1] = None
@@ -337,7 +337,6 @@ class Blokus(BlokusBase):
         
         #check if the piece is legal to place
         if self.legal_to_place(piece):
-            print("im here")
 
             #check if the piece we want to play is played before (or available
             #to play)
@@ -411,7 +410,8 @@ class Blokus(BlokusBase):
         (because they may differ in location and orientation).
         """
         available_pieces: set = set()
-        for shape in self._players[self._curr_player].values():
+        shapes = self._players[self._curr_player].values()
+        for shape in shapes:
             p = Piece(shape)
             for loc in self.empty_locations:
                 p.set_anchor(loc)
@@ -427,3 +427,5 @@ class Blokus(BlokusBase):
                     if self.legal_to_place(p):
                         available_pieces.add(p)
         return available_pieces
+    
+

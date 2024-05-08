@@ -6,7 +6,8 @@ Modify only the methods marked as TODO.
 import copy
 from typing import Optional
 import textwrap
-#import numpy as np
+
+import numpy as np
 
 from shape_definitions import ShapeKind
 
@@ -136,22 +137,22 @@ class Shape:
         Rotate the shape left by 90 degrees,
         by modifying the squares in place.
         """
-        #r = np.array(( (0, -1), (1, 0)))
-        #s = self.squares
-        #for i in range(len(s)):
-            #v = np.array((s[i][0], s[i][1]))
-            #s[i] = (r.dot(v)[0], r.dot(v)[1])
+        r = np.array(( (0, -1), (1, 0)))
+        s = self.squares
+        for i in range(len(s)):
+            v = np.array((s[i][0], s[i][1]))
+            s[i] = (r.dot(v)[0], r.dot(v)[1])
 
     def rotate_right(self) -> None:
         """
         Rotate the shape right by 90 degrees,
         by modifying the squares in place.
         """
-        #r = np.array(( (0, 1), (-1, 0)))
-        #s = self.squares
-        #for i in range(len(s)):
-            #v = np.array((s[i][0], s[i][1]))
-            #s[i] = (r.dot(v)[0], r.dot(v)[1])
+        r = np.array(( (0, 1), (-1, 0)))
+        s = self.squares
+        for i in range(len(s)):
+            v = np.array((s[i][0], s[i][1]))
+            s[i] = (r.dot(v)[0], r.dot(v)[1])
 
 class Piece:
     """
