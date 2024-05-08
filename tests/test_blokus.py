@@ -658,4 +658,5 @@ def test_some_available_moves() -> None:
 
 def test_no_available_moves() -> None:
     """Test that available_moves is empty after playing all pieces"""
+    blokus = Blokus(1, 20, {(0, 0)})
 
