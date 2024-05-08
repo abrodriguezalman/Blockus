@@ -334,8 +334,10 @@ class Blokus(BlokusBase):
         Raises ValueError if the player has already
         played a piece with this shape.
         """
+        
         #check if the piece is legal to place
         if self.legal_to_place(piece):
+            print("im here")
 
             #check if the piece we want to play is played before (or available
             #to play)
@@ -354,7 +356,7 @@ class Blokus(BlokusBase):
             self._last_move[self.curr_player] = piece.shape.kind
 
             #change the occupied coordinates set
-            self.empty_locations.remove(x2,y2)
+            self.empty_locations.remove((x2,y2))
 
             #change who's turn it is - account for retired players
             self._curr_player = (self.curr_player % self.num_players) + 1
@@ -409,7 +411,7 @@ class Blokus(BlokusBase):
         (because they may differ in location and orientation).
         """
         available_pieces: set = set()
-        for shape in self._players[self._curr_player].items():
+        for shape in self._players[self._curr_player].values():
             p = Piece(shape)
             for loc in self.empty_locations:
                 p.set_anchor(loc)

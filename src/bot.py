@@ -1,8 +1,8 @@
 from shape_definitions import ShapeKind
+from fakes import BlokusFake
 from piece import Point, Shape, Piece
-from base import BlokusBase
+from base import BlokusBase, Grid
 from blokus import Blokus
-from fakes import BlokusStub
 
 import sys
 import random
@@ -11,35 +11,61 @@ from typing import Optional
 times = int(sys.argv[1])
 
 #position randomizer
-def rand_pos():
+def rand_pos() -> Point:
     return (random.randint(1, 13), random.randint(1, 13))
 
-def game():
-    stub_bot = BlokusStub(2, 14, {rand_pos(), rand_pos()})
-    while not stub_bot.game_over:
-        piece = ni_bot(stub_bot)
-        stub_bot.maybe_place(piece)
+def game() -> list[int]:
+    game = BlokusFake(2, 11, {(0,0), (5,5)})
+    
+    
+    
+    while not game.game_over:
+        print("bot1 starts playing")
+        ni_bot(game)
+        print("bot1 played")
+        print("bot2 starts playing")
+        ni_bot(game)
+        print("bot2 played")
+    return game.winners
 
-    return stub_bot.winners
 
-def ni_bot(stub: "BlokusStub"):
+
+
+def ni_bot(blokus: "BlokusFake") -> None:
     """
     The needs improvement bot. This bot decides which piece to play and where
     on completely random.
 
     Inputs:
-        stub [BlokusStub]: the stub implementation of blokus that is currently 
+        blokus [BlokusFake]: the fake implementation of blokus that is currently 
             running
 
-    Returns: 
-        [Piece] if it can play
-        [None] if there are no available moves left
-    
+    Returns: [None], just plays or retires
+        
     """
-    if len(stub.available_moves()) != 0:
-        piece = random.choice(list(stub.available_moves()))
-        return piece
-    return None
+    avail_moves: set[Piece] = blokus.available_moves()
+
+    print(len(avail_moves))
+    if len(avail_moves) != 0:
+        for _ in range(len(avail_moves)):
+            piece = avail_moves.pop()
+            
+            if blokus.maybe_place(piece):
+                print("bot played a piece")
+                return None
+        blokus.retire()
+        return None
+    else:
+        blokus.retire()
+    
+    return "I played"
+        
+    
+
+def s_bot(blokus: "BlokusFake"):
+    avail_moves = list(blokus.available_moves())
+    return 
+
 
 def main():
     win0 = 0
@@ -58,5 +84,5 @@ def main():
     \nBot 1 Wins |  {(win1 / times) * 100} %\
     \nTies       |  {(tie / times) * 100} % \n"
 
-
 print(main())
+
