@@ -337,7 +337,6 @@ class Blokus(BlokusBase):
         
         #check if the piece is legal to place
         if self.legal_to_place(piece):
-            print("im here")
 
             #check if the piece we want to play is played before (or available
             #to play)

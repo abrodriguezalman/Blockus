@@ -644,7 +644,7 @@ def test_some_available_moves() -> None:
     """Verify available_moves is non-empty, and that it decreases in size after
     some pieces have been played"""
     blokus = t_blokus_mini(1)
-    n = blokus.available_moves()
+    n = len(blokus.available_moves())
     assert n != 0
 
     piece_one = Piece(blokus.shapes[ShapeKind.ONE])
@@ -654,9 +654,99 @@ def test_some_available_moves() -> None:
     piece_two.set_anchor((1, 1))
     assert blokus.maybe_place(piece_two)
 
-    assert n > blokus.available_moves()
+    assert n > len(blokus.available_moves())
 
 def test_no_available_moves() -> None:
     """Test that available_moves is empty after playing all pieces"""
-    blokus = Blokus(1, 20, {(0, 0)})
+    blokus = Blokus(1, 5, {(0, 0)})
 
+    piece_one = Piece(blokus.shapes[ShapeKind.FIVE])
+    piece_one.set_anchor((2, 0))
+    assert blokus.maybe_place(piece_one)
+
+    assert len(blokus.available_moves()) == 0
+
+def test_15_points() -> None:
+    """Test that when all pieces are played, a player scores 15 points."""
+    blokus = Blokus(1, 16, {(0, 0)})
+    
+    def place_piece(
+        kind: ShapeKind, row: int, col: int
+    ) -> None:
+        assert blokus.curr_player == 1
+        assert not blokus.game_over
+
+        piece = Piece(blokus.shapes[kind])
+
+        # Place the piece in the specified location
+        piece.set_anchor((row, col))
+        assert blokus.maybe_place(piece)
+
+    place_piece(ShapeKind.Z, 1, 1)
+    place_piece(ShapeKind.Y, 1, 4)
+    place_piece(ShapeKind.X, 5, 3)
+    place_piece(ShapeKind.W, 3, 6)
+    place_piece(ShapeKind.V, 3, 9)
+    place_piece(ShapeKind.U, 8, 1)
+    place_piece(ShapeKind.T, 2, 12)
+    place_piece(ShapeKind.P, 7, 6)
+    place_piece(ShapeKind.LETTER_O, 0, 8)
+    place_piece(ShapeKind.N, 4, 13)
+    place_piece(ShapeKind.L, 7, 11)
+    place_piece(ShapeKind.F, 8, 8)
+    place_piece(ShapeKind.SEVEN, 11, 10)
+    place_piece(ShapeKind.FIVE, 11, 3)
+    place_piece(ShapeKind.A, 14, 1)
+    place_piece(ShapeKind.FOUR, 13, 12)
+    place_piece(ShapeKind.THREE, 14, 5)
+    place_piece(ShapeKind.C, 12, 7)
+    place_piece(ShapeKind.S, 14, 8)
+    place_piece(ShapeKind.ONE, 4, 1)
+    place_piece(ShapeKind.TWO, 0, 14)
+
+    assert blokus.game_over
+    assert blokus.get_score(1) == 15
+    assert blokus.winners == [1]
+    
+def test_20_points() -> None:
+    """Test when a player places all pieces and the 1-piece is played last, they
+    earn 20 points"""
+    blokus = Blokus(1, 16, {(0, 0)})
+    
+    def place_piece(
+        kind: ShapeKind, row: int, col: int
+    ) -> None:
+        assert blokus.curr_player == 1
+        assert not blokus.game_over
+
+        piece = Piece(blokus.shapes[kind])
+
+        # Place the piece in the specified location
+        piece.set_anchor((row, col))
+        assert blokus.maybe_place(piece)
+
+    place_piece(ShapeKind.Z, 1, 1)
+    place_piece(ShapeKind.Y, 1, 4)
+    place_piece(ShapeKind.X, 5, 3)
+    place_piece(ShapeKind.W, 3, 6)
+    place_piece(ShapeKind.V, 3, 9)
+    place_piece(ShapeKind.U, 8, 1)
+    place_piece(ShapeKind.T, 2, 12)
+    place_piece(ShapeKind.P, 7, 6)
+    place_piece(ShapeKind.LETTER_O, 0, 8)
+    place_piece(ShapeKind.N, 4, 13)
+    place_piece(ShapeKind.L, 7, 11)
+    place_piece(ShapeKind.F, 8, 8)
+    place_piece(ShapeKind.SEVEN, 11, 10)
+    place_piece(ShapeKind.FIVE, 11, 3)
+    place_piece(ShapeKind.A, 14, 1)
+    place_piece(ShapeKind.FOUR, 13, 12)
+    place_piece(ShapeKind.THREE, 14, 5)
+    place_piece(ShapeKind.C, 12, 7)
+    place_piece(ShapeKind.S, 14, 8)
+    place_piece(ShapeKind.TWO, 0, 14)
+    place_piece(ShapeKind.ONE, 4, 1)
+
+    assert blokus.game_over
+    assert blokus.get_score(1) == 20
+    assert blokus.winners == [1]
