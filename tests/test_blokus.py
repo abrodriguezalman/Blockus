@@ -12,7 +12,7 @@ def test_inheritance() -> None:
     assert issubclass(Blokus,
                       BlokusBase), "BlokusFake should inherit from BlokusBase"
 
-def t_blokus_mini(num_players: int) -> None:
+def t_blokus_mini(num_players: int) -> Blokus:
     """Test the size, start_positions, num_players, curr_players, and grid have
     all been initialized correctly for Blokus Mini"""
     start_pos = {(0, 0), (0, 4), (4, 4), (4, 0), (2, 2)}
@@ -25,7 +25,7 @@ def t_blokus_mini(num_players: int) -> None:
     assert b.grid == [[None] * size for _ in range(size)]
     return b
 
-def t_blokus_mono() -> None:
+def t_blokus_mono() -> Blokus:
     """Test the size, start_positions, num_players, curr_players, and grid have
     all been initialized correctly for Blokus Mono"""
     start_pos = {(5, 5)}
@@ -39,7 +39,7 @@ def t_blokus_mono() -> None:
     assert b.grid == [[None] * size for _ in range(size)]
     return b
 
-def t_blokus_duo() -> None:
+def t_blokus_duo() -> Blokus:
     """Test the size, start_positions, num_players, curr_players, and grid have
     all been initialized correctly for Blokus Duo"""
     start_pos = {(4, 4), (9, 9)}
@@ -76,136 +76,50 @@ def test_init_blokus_duo_2() -> None:
 def test_shapes_loaded() -> None:
     "Test that all shapes are loaded correctly"
     blokus = t_blokus_mini(1)
-    # One piece shapes
-    shape = blokus.shapes[ShapeKind.ONE]
-    assert shape.kind == ShapeKind.ONE
-    assert shape.origin == (0, 0)
-    assert not shape.can_be_transformed
-    assert shape.squares == [(0, 0)]
 
-    # Two piece shapes
-    shape = blokus.shapes[ShapeKind.TWO]
-    assert shape.kind == ShapeKind.TWO
-    assert shape.origin == (0, 0)
-    assert shape.can_be_transformed
-    assert shape.squares == [(0, 0), (0, 1)]
-
-    # Three piece shapes
-    shape = blokus.shapes[ShapeKind.THREE]
-    assert shape.kind == ShapeKind.THREE
-    assert shape.origin == (0, 1)
-    assert shape.can_be_transformed
-    assert shape.squares == [(0, -1), (0, 0), (0, 1)]
-
-    shape = blokus.shapes[ShapeKind.C]
-    assert shape.kind == ShapeKind.C
-    assert shape.origin == (0, 0)
-    assert shape.can_be_transformed
-    assert shape.squares == [(0, 0), (0, 1), (1, 0)]
-
-    # Four piece shapes
-    shape = blokus.shapes[ShapeKind.FOUR]
-    assert shape.kind == ShapeKind.FOUR
-    assert shape.origin == (0, 1)
-    assert shape.can_be_transformed
-    assert shape.squares == [(0, -1), (0, 0), (0, 1), (0, 2)]
-
-    shape = blokus.shapes[ShapeKind.SEVEN]
-    assert shape.kind == ShapeKind.SEVEN
-    assert shape.origin == (1, 1)
-    assert shape.can_be_transformed
-    assert shape.squares == [(-1, -1), (-1, 0), (0, 0), (1, 0)]
-
-    shape = blokus.shapes[ShapeKind.S]
-    assert shape.kind == ShapeKind.S
-    assert shape.origin == (0, 1)
-    assert shape.can_be_transformed
-    assert shape.squares == [(0, 0), (0, 1), (1, -1), (1, 0)]
-
-    shape = blokus.shapes[ShapeKind.LETTER_O]
-    assert shape.kind == ShapeKind.LETTER_O
-    assert shape.origin == (0, 0)
-    assert not shape.can_be_transformed
-    assert shape.squares == [(0, 0), (0, 1), (1, 0), (1, 1)]
-
-    shape = blokus.shapes[ShapeKind.A]
-    assert shape.kind == ShapeKind.A
-    assert shape.origin == (1, 1)
-    assert shape.can_be_transformed
-    assert shape.squares == [(-1, 0), (0, -1), (0, 0), (0, 1)]
-
-    # Five piece blocks
-    shape = blokus.shapes[ShapeKind.F]
-    assert shape.kind == ShapeKind.F
-    assert shape.origin == (1, 1)
-    assert shape.can_be_transformed
-    assert shape.squares == [(-1, 0), (-1, 1), (0, -1), (0, 0), (1, 0)]
-
-    shape = blokus.shapes[ShapeKind.FIVE]
-    assert shape.kind == ShapeKind.FIVE
-    assert shape.origin == (2, 0)
-    assert shape.can_be_transformed
-    assert shape.squares == [(-2, 0), (-1, 0), (0, 0), (1, 0), (2, 0)]
-
-    shape = blokus.shapes[ShapeKind.L]
-    assert shape.kind == ShapeKind.L
-    assert shape.origin == (2, 0)
-    assert shape.can_be_transformed
-    assert shape.squares == [(-2, 0), (-1, 0), (0, 0), (1, 0), (1, 1)]
-
-    shape = blokus.shapes[ShapeKind.N]
-    assert shape.kind == ShapeKind.N
-    assert shape.origin == (1, 0)
-    assert shape.can_be_transformed
-    assert shape.squares == [(-1, 1), (0, 0), (0, 1), (1, 0), (2, 0)]
-
-    shape = blokus.shapes[ShapeKind.P]
-    assert shape.kind == ShapeKind.P
-    assert shape.origin == (1, 1)
-    assert shape.can_be_transformed
-    assert shape.squares == [(-1, -1), (-1, 0), (0, -1), (0, 0), (1, -1)]
-
-    shape = blokus.shapes[ShapeKind.T]
-    assert shape.kind == ShapeKind.T
-    assert shape.origin == (1, 1)
-    assert shape.can_be_transformed
-    assert shape.squares == [(-1, -1), (-1, 0), (-1, 1), (0, 0), (1, 0)]
-
-    shape = blokus.shapes[ShapeKind.U]
-    assert shape.kind == ShapeKind.U
-    assert shape.origin == (1, 1)
-    assert shape.can_be_transformed
-    assert shape.squares == [(-1, -1), (-1, 1), (0, -1), (0, 0), (0, 1)]
-
-    shape = blokus.shapes[ShapeKind.V]
-    assert shape.kind == ShapeKind.V
-    assert shape.origin == (1, 1)
-    assert shape.can_be_transformed
-    assert shape.squares == [(-1, 1), (0, 1), (1, -1), (1, 0), (1, 1)]
-
-    shape = blokus.shapes[ShapeKind.W]
-    assert shape.kind == ShapeKind.W
-    assert shape.origin == (1, 1)
-    assert shape.can_be_transformed
-    assert shape.squares == [(-1, 1), (0, 0), (0, 1), (1, -1), (1, 0)]
-
-    shape = blokus.shapes[ShapeKind.X]
-    assert shape.kind == ShapeKind.X
-    assert shape.origin == (1, 1)
-    assert shape.can_be_transformed
-    assert shape.squares == [(-1, 0), (0, -1), (0, 0), (0, 1), (1, 0)]
-
-    shape = blokus.shapes[ShapeKind.Y]
-    assert shape.kind == ShapeKind.Y
-    assert shape.origin == (1, 1)
-    assert shape.can_be_transformed
-    assert shape.squares == [(-1, 0), (0, -1), (0, 0), (1, 0), (2, 0)]
-
-    shape = blokus.shapes[ShapeKind.Z]
-    assert shape.kind == ShapeKind.Z
-    assert shape.origin == (1, 1)
-    assert shape.can_be_transformed
-    assert shape.squares == [(-1, -1), (-1, 0), (0, 0), (1, 0), (1, 1)]
+    shapes = {ShapeKind.ONE: [(0, 0), [(0, 0)]],
+              ShapeKind.TWO: [(0, 0), [(0, 0), (0, 1)]],
+              ShapeKind.THREE: [(0, 1), [(0, -1), (0, 0), (0, 1)]],
+              ShapeKind.C: [(0, 0), [(0, 0), (0, 1), (1, 0)]],
+              ShapeKind.FOUR: [(0, 1), [(0, -1), (0, 0), (0, 1), (0, 2)]],
+              ShapeKind.SEVEN: [(1, 1), [(-1, -1), (-1, 0), (0, 0), (1, 0)]],
+              ShapeKind.S: [(0, 1), [(0, 0), (0, 1), (1, -1), (1, 0)]],
+              ShapeKind.LETTER_O: [(0, 0), [(0, 0), (0, 1), (1, 0), (1, 1)]],
+              ShapeKind.A: [(1, 1), [(-1, 0), (0, -1), (0, 0), (0, 1)]],
+              ShapeKind.F: [(1, 1),
+                            [(-1, 0), (-1, 1), (0, -1), (0, 0), (1, 0)]],
+              ShapeKind.FIVE: [(2, 0),
+                               [(-2, 0), (-1, 0), (0, 0), (1, 0), (2, 0)]],
+              ShapeKind.L: [(2, 0),
+                            [(-2, 0), (-1, 0), (0, 0), (1, 0), (1, 1)]],
+              ShapeKind.N: [(1, 0),
+                            [(-1, 1), (0, 0), (0, 1), (1, 0), (2, 0)]],
+              ShapeKind.P: [(1, 1),
+                            [(-1, -1), (-1, 0), (0, -1), (0, 0), (1, -1)]],
+              ShapeKind.T: [(1, 1),
+                            [(-1, -1), (-1, 0), (-1, 1), (0, 0), (1, 0)]],
+              ShapeKind.U: [(1, 1),
+                            [(-1, -1), (-1, 1), (0, -1), (0, 0), (0, 1)]],
+              ShapeKind.V: [(1, 1),
+                            [(-1, 1), (0, 1), (1, -1), (1, 0), (1, 1)]],
+              ShapeKind.W: [(1, 1),
+                            [(-1, 1), (0, 0), (0, 1), (1, -1), (1, 0)]],
+              ShapeKind.X: [(1, 1),
+                            [(-1, 0), (0, -1), (0, 0), (0, 1), (1, 0)]],
+              ShapeKind.Y: [(1, 1),
+                            [(-1, 0), (0, -1), (0, 0), (1, 0), (2, 0)]],
+              ShapeKind.Z: [(1, 1),
+                            [(-1, -1), (-1, 0), (0, 0), (1, 0), (1, 1)]]
+              }
+    for shape_kind, points in shapes.items():
+        shape = blokus.shapes[shape_kind]
+        assert shape.kind == shape_kind
+        assert shape.origin == points[0]
+        if shape_kind in (ShapeKind.ONE, ShapeKind.LETTER_O):
+            assert not shape.can_be_transformed
+        else:
+            assert shape.can_be_transformed
+        assert shape.squares == points[1]
 
 def test_some_flipped_shapes() -> None:
     "Test that some shapes are flipped correctly"
@@ -382,13 +296,13 @@ def test_exception_init() -> None:
     player, if the size is less than 5, if the start pos is not on the board,
     and if there are fewer start pos than players"""
     with pytest.raises(ValueError):
-        b = Blokus(0, 10, {(0, 0)})
+        Blokus(0, 10, {(0, 0)})
     with pytest.raises(ValueError):
-        b = Blokus(1, 2, {(0, 0)})
+        Blokus(1, 2, {(0, 0)})
     with pytest.raises(ValueError):
-        b = Blokus(1, 10, {(-1, 0)})
+        Blokus(1, 10, {(-1, 0)})
     with pytest.raises(ValueError):
-        b = Blokus(2, 10, {(0, 0)})
+        Blokus(2, 10, {(0, 0)})
 
 def test_exception_place_already_played() -> None:
     """Test that if you try to place a piece twice it raises an error."""
@@ -644,7 +558,7 @@ def test_some_available_moves() -> None:
     """Verify available_moves is non-empty, and that it decreases in size after
     some pieces have been played"""
     blokus = t_blokus_mini(1)
-    n = blokus.available_moves()
+    n = len(blokus.available_moves())
     assert n != 0
 
     piece_one = Piece(blokus.shapes[ShapeKind.ONE])
@@ -654,9 +568,95 @@ def test_some_available_moves() -> None:
     piece_two.set_anchor((1, 1))
     assert blokus.maybe_place(piece_two)
 
-    assert n > blokus.available_moves()
+    assert n > len(blokus.available_moves())
 
 def test_no_available_moves() -> None:
     """Test that available_moves is empty after playing all pieces"""
-    blokus = Blokus(1, 20, {(0, 0)})
+    blokus = Blokus(1, 5, {(0, 0)})
 
+    piece_one = Piece(blokus.shapes[ShapeKind.FIVE])
+    piece_one.set_anchor((2, 0))
+    assert blokus.maybe_place(piece_one)
+
+    assert len(blokus.available_moves()) == 0
+
+def place_most_pieces(blokus: Blokus) -> None:
+    """Place all but the last two pieces on a board. Helper for next two
+    tests."""
+    def place_piece(
+        kind: ShapeKind, row: int, col: int
+    ) -> None:
+        assert blokus.curr_player == 1
+        assert not blokus.game_over
+
+        piece = Piece(blokus.shapes[kind])
+
+        # Place the piece in the specified location
+        piece.set_anchor((row, col))
+        assert blokus.maybe_place(piece)
+
+    place_piece(ShapeKind.Z, 1, 1)
+    place_piece(ShapeKind.Y, 1, 4)
+    place_piece(ShapeKind.X, 5, 3)
+    place_piece(ShapeKind.W, 3, 6)
+    place_piece(ShapeKind.V, 3, 9)
+    place_piece(ShapeKind.U, 8, 1)
+    place_piece(ShapeKind.T, 2, 12)
+    place_piece(ShapeKind.P, 7, 6)
+    place_piece(ShapeKind.LETTER_O, 0, 8)
+    place_piece(ShapeKind.N, 4, 13)
+    place_piece(ShapeKind.L, 7, 11)
+    place_piece(ShapeKind.F, 8, 8)
+    place_piece(ShapeKind.SEVEN, 11, 10)
+    place_piece(ShapeKind.FIVE, 11, 3)
+    place_piece(ShapeKind.A, 14, 1)
+    place_piece(ShapeKind.FOUR, 13, 12)
+    place_piece(ShapeKind.THREE, 14, 5)
+    place_piece(ShapeKind.C, 12, 7)
+    place_piece(ShapeKind.S, 14, 8)
+
+
+def test_15_points() -> None:
+    """Test that when all pieces are played, a player scores 15 points."""
+    blokus = Blokus(1, 16, {(0, 0)})
+    place_most_pieces(blokus)
+
+    # After placing the other pieces, play the one piece then the two piece
+    assert blokus.curr_player == 1
+    assert not blokus.game_over
+    piece = Piece(blokus.shapes[ShapeKind.ONE])
+    piece.set_anchor((4, 1))
+    assert blokus.maybe_place(piece)
+
+    assert blokus.curr_player == 1
+    assert not blokus.game_over
+    piece = Piece(blokus.shapes[ShapeKind.TWO])
+    piece.set_anchor((0, 14))
+    assert blokus.maybe_place(piece)
+
+    assert blokus.game_over
+    assert blokus.get_score(1) == 15
+    assert blokus.winners == [1]
+
+def test_20_points() -> None:
+    """Test when a player places all pieces and the 1-piece is played last, they
+    earn 20 points"""
+    blokus = Blokus(1, 16, {(0, 0)})
+    place_most_pieces(blokus)
+
+    # After placing the other pieces, play the one piece then the two piece
+    assert blokus.curr_player == 1
+    assert not blokus.game_over
+    piece = Piece(blokus.shapes[ShapeKind.TWO])
+    piece.set_anchor((0, 14))
+    assert blokus.maybe_place(piece)
+
+    assert blokus.curr_player == 1
+    assert not blokus.game_over
+    piece = Piece(blokus.shapes[ShapeKind.ONE])
+    piece.set_anchor((4, 1))
+    assert blokus.maybe_place(piece)
+
+    assert blokus.game_over
+    assert blokus.get_score(1) == 20
+    assert blokus.winners == [1]

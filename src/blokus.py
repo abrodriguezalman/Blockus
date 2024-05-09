@@ -83,7 +83,7 @@ class Blokus(BlokusBase):
         # a dictionary to keep track of the players and their pieces left
         # a dictionary to keep track of each player's last piece played
         self._players = {}
-        self._last_move: dict[int, None] = {}
+        self._last_move: dict[int, None|ShapeKind] = {}
         for i in range(num_players):
             self._players[i + 1] = self._shapes.copy()
             self._last_move[i + 1] = None

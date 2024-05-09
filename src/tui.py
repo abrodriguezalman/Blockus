@@ -1,44 +1,72 @@
+import curses
 import sys
-from fakes import BlokusStub
+import random
+from typing import Any
+from fakes import BlokusFake
 
-red: str = "\x1b[1;31m"
-blue: str = "\x1b[1;34m"
-black: str = "\x1b[1;30m"
-
-sz: int = int(sys.argv[1])
-start_positions: set[tuple[int, int]]= {(sz//2 - 1, sz//2 - 1), (sz//2, sz//2)}
-stub_game: 'BlokusStub' = BlokusStub(2, sz, start_positions)
-
-def draw_board(game: 'BlokusStub') -> str:
-    """
-    Draws the board for a given BlokusStub game object.
-
-    Inputs:
-        game [BlokusStub]: a Blokus game object
+def colors() -> None:
+    #creates random colors for players
+    for i in range(1, 7):
+        curses.init_pair(i, random.randint(i, 7), curses.COLOR_WHITE)
+    curses.init_pair(8, curses.COLOR_BLACK, curses.COLOR_WHITE) #grid color pair
     
-    Returns [str]: a string representation of the game board.
+class TUI_player():
     """
-    print("┌" + "──┬" * game.size)
+    has: player number (1, 2, 3, etc), player designated color pair, and player
+    pending piece
+    """
+    def __init__(self, n: int, game: 'BlokusFake') -> None:
+        self.n = n
+        self.color = curses.color_pair(n)
+        self.pending_piece = random.choice(game.remaining_shapes(n)) #currently a shape
+        #a piece is a shape WITH an anchor!
 
-    for i, row in enumerate(game.grid):
-        board_row: list[str] = []
+class TUI_game():
+    """
+    has: blockus game, the screen for the game, and all players of the game
+    """
+    def __init__(self, game: 'BlokusFake') -> None:
+        self.game = game
+        self.screen = curses.initscr()
+        curses.start_color()
+        self.players = {}
+        
+        colors()
+        for i in range (1, self.game.num_players + 1):
+            self.players[f"player {i}"] = TUI_player(i, self.game)
 
-        for j, cell in enumerate(row):
-            if cell is None:
-                if (i, j) in start_positions:
-                    board_row.append("██" + black)
-                else:
-                    board_row.append("  ")
-            elif cell[0] == 1:
-                board_row.append(blue + "██" + black)
-            else:
-                board_row.append(red + "██" + black)
+    def _print(self, string: str, color: int, x: int = 0, y: int = 0) -> None:
+        """
+        prints out the given stuff to the tui_game screen
+        """
+        #(0,0) placement is hardcoded rn, to be changed
+        self.screen.addstr(x, y, string, color)
 
-        print("│" + '│'.join(board_row)+"│")
+    def draw_board(self) -> None:
+        
+        nrows = len(self.game.grid)
+        ncols = len(self.game.grid)
 
-        if i != game.size - 1:
-            print("├──" * game.size + "┤")
+        self._print("┌" + "──┬" * self.game.size, curses.color_pair(8))
+        
+        #raise NotImplementedError
 
-    print("└" + "──┴" * game.size)
+def play_blokus() -> None:
+    # Parameters to be determined
+    raise NotImplementedError
 
-draw_board(stub_game)
+def cmd(size: int) -> None:
+    #correct parameters to be determined
+    #this is where game will be initialized
+    #blokusx = BlokusFake(2, size, {(0,0),(1,1),(2,2),(3,3)})
+    #play_blokus(blokusx)
+    raise NotImplementedError
+
+#if __name__ == "__main__":
+    #cmd()
+
+#testing screen
+test_blockus = BlokusFake(2, 5, {(0, 0), (0, 1), (1, 0),(1, 1)})
+test_TUI = TUI_game(test_blockus)
+test_TUI.draw_board()
+test_TUI.screen.refresh()

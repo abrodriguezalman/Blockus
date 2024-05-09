@@ -14,14 +14,14 @@ times = int(sys.argv[1])
 def rand_pos() -> Point:
     return (random.randint(1, 13), random.randint(1, 13))
 
-def game() -> list[int] | list[None]:
+def game() -> list[int] | None:
     game = BlokusFake(2, 10, {(0,0), (9,9)})
     
     while not game.game_over:
-        #bot 1
+        #bot 0
         ni_bot(game)
 
-        #bot 2
+        #bot 1
         s_bot(game)
 
     return game.winners
@@ -88,7 +88,8 @@ def s_bot(blokus: "BlokusFake") -> None:
 
 def choose_larger(pcs: set[Piece]) -> Piece:
     max_squares: int = 0
-    max_piece = None
+    max_piece = pcs.pop()
+    pcs.add(max_piece)
     for piece in pcs: 
         cur_len = len(piece.squares())
         if cur_len == 5:
@@ -99,7 +100,7 @@ def choose_larger(pcs: set[Piece]) -> Piece:
         
     return max_piece
 
-def main() -> None:
+def main() -> str:
     win0 = 0
     win1 = 0
     tie = 0
