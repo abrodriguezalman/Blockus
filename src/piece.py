@@ -7,7 +7,7 @@ import copy
 from typing import Optional
 import textwrap
 
-#import numpy as np
+import numpy as np
 
 from shape_definitions import ShapeKind
 
