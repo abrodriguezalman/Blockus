@@ -15,17 +15,18 @@ from fakes import BlokusStub, BlokusFake
 from blokus import Blokus
 from shape_definitions import ShapeKind
 from piece import Piece
-#from bot import RandomBot, SmartBot
+from guibot import NIBot
 
 
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
-#number of pixels for each grid square
+#constants for drawing the game board
 SIDE: int = 45
 SMALL_SIDE: int = 35
 BORDER: int = 1
 SPACING: int = 100
 
+#data types
 Color = tuple[int, int, int]
 Cell = Optional[tuple[int, ShapeKind]]
 Grid = list[list[Cell]]
@@ -34,27 +35,41 @@ Grid = list[list[Cell]]
 class Player:
     """
     Class to store information about each player in the GUI
-
-    Inputs:
-        _num (int): the player's number
-        _blokus (BlokusBase): the blokus game
-        _color (Color): the player's randomly generated color
     """
 
     _num: int
     _blokus: BlokusBase
     _color: Color
     pending_piece: Piece | None
-    _piece_grid: dict[ShapeKind, bool] #TYPE THIS LATER
+    _piece_grid: dict[ShapeKind, bool]
+    is_bot: bool
+    bot: NIBot | None
 
-    def __init__(self, num: int, blokus: BlokusBase, color: tuple[int, int, int]) -> None:
+    def __init__(self, num: int, blokus: BlokusBase, color: tuple[int, int, int], is_bot: bool = False) -> None:
+        """Constructor
+        
+        Inputs:
+            num (int): the player's number
+            blokus (BlokusBase): the blokus game
+            color (Color): the player's randomly generated color
+        
+            IN PROGRESS:
+            is_bot (bool): whether or not the player is a bot (defaults to False)"""
+
         self._num = num
         self._blokus = blokus
         self._color = color
+        self.is_bot = is_bot
 
+        if is_bot:
+            self.bot = NIBot()
+        else:
+            self.bot = None
+
+        #picks a pending piece (at this point random)
         self.set_piece(self.pick_random_piece())
 
-        #create a grid of pieces
+        #create a dictionary of pieces tracking which pieces the player has played
         #this will be used to display the remaining pieces visually
         piece_grid = {}
         r = self._blokus.remaining_shapes(self.num)
@@ -72,10 +87,14 @@ class Player:
         return self._num
     
     def set_piece(self, p: Piece) -> None:
+        """Sets the pending pieces to the input piece
+        
+        Input: p (Piece) - the new piece
+        """
         self.pending_piece = p
     
     def pick_random_piece(self) -> Piece:
-        """pick a random piece for the given player"""
+        """pick a random piece to play"""
 
         remaining = self._blokus.remaining_shapes(self.num)
         shapekind = random.choice(remaining)
@@ -95,15 +114,15 @@ def draw_board(surface: pygame.surface.Surface, blokus: BlokusBase, players: lis
         players: the list of players
 
     Returns: None
-
     """
     grid = blokus.grid
     size = blokus.size
 
     surface.fill((229, 204, 255))
 
+    #pick a grid-box side length based on size
     s = SIDE
-    if blokus.size > 15:
+    if blokus.size >= 15:
         s = SMALL_SIDE
 
     #draw the game board
@@ -132,20 +151,18 @@ def draw_board(surface: pygame.surface.Surface, blokus: BlokusBase, players: lis
     text = font.render(t, True, p.color)
     surface.blit(text, ((surface.get_width()-text.get_width())/2, SPACING/8))
 
-
-    #draw pending piece
+    #draw the pending piece
+    #the pending piece will have a thicker black border
     for square in p.pending_piece.squares():
         rect = (square[0] * s + SPACING/2, square[1] * s + SPACING/2, s, s)
         pygame.gfxdraw.box(surface, rect, p.color)
         pygame.draw.rect(surface, color=(0, 0, 0),
                                  rect=rect, width=5*BORDER)
-        
 
-    #calculate # of pieces per row
-    s_bank = int(1.5*s)     #size of a bank square
+
+    #calculate # of squares of size s_bank that can fit in a single row below the board
+    s_bank = int(1.25*s)     
     sq_per_row = math.floor((s * blokus.size)/s_bank)
-    nrow = math.ceil(21 / sq_per_row)
-
     row_count = 0
     
     #draw the piece bank
@@ -153,16 +170,17 @@ def draw_board(surface: pygame.surface.Surface, blokus: BlokusBase, players: lis
         pi = list(p._piece_grid.keys())[i]
         played = p._piece_grid[pi]
 
-        #location of big square
+        #square to place the mini piece-drawing in
         #this is the LEFT aligh
         row_place = (i - (row_count * sq_per_row)) * s_bank + SPACING/2
-        margin = s * blokus.size - s_bank * sq_per_row + 2*s/5
+        margin = s/2
         row_place += margin
         
         #this is the TOP align
         col_place = s * blokus.size + (0.75 + 0.5 * row_count) * SPACING 
         rect = pygame.Rect((row_place, col_place, s_bank, s_bank))
 
+        #new row
         if (i+1) % sq_per_row == 0 and i > 0:
             row_count += 1
 
@@ -177,7 +195,7 @@ def draw_board(surface: pygame.surface.Surface, blokus: BlokusBase, players: lis
             #pygame.gfxdraw.box(surface, rect, (0,0,0))
             color = (255,255,255)
 
-        #draw each square of the pieces
+        #draw a mini version of each piece
         for square in blokus.shapes[pi].squares:
             s2 = s/5
             row = row_place + s2 * square[0]
@@ -200,9 +218,6 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
     Inputs:
         blokus: the blokus game
         players: a list of players
-    
-    As of 4/28/24, the game is not playable.
-    Calling this method only draws the blokus board using BlokusStub implementation
     """
 
     #initalize pygame
@@ -212,7 +227,129 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
 
     #determine which side length to use
     s = SIDE * blokus.size
-    if blokus.size > 15:
+    if blokus.size >= 15:
+        s = SMALL_SIDE * blokus.size
+
+    #calculate # of pieces per row
+    #this is used to determine surface size
+    s_bank = int(1.25*(s/blokus.size))    #size of a bank square
+    sq_per_row = math.floor((s)/s_bank)
+    nrow = math.ceil(21 / sq_per_row) 
+
+    surface = pygame.display.set_mode((s + SPACING, s + nrow * s_bank + SPACING*.75))
+
+    #play the game!
+    while not blokus.game_over:
+        p = players[blokus.curr_player-1]
+
+        #proesss pygame events
+        events = pygame.event.get()
+        for event in events:
+            
+            #quit for x-ing out
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            #process keybord events
+            elif event.type == pygame.KEYDOWN:
+                #quit for escape key
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+
+                #attempt to place piece
+                elif event.key == pygame.K_RETURN:
+                    if blokus.maybe_place(p.pending_piece):
+
+                        #update piece_grid and pick a new pending piece
+                        p._piece_grid[p.pending_piece.shape.kind] = True
+                        p.set_piece(p.pick_random_piece())
+
+                #process arrow key events (moving the pending piece)
+                elif event.key == pygame.K_UP:
+                    p2 = p.pending_piece
+                    a = p2.anchor
+                    a2 = (a[0], a[1]-1)
+
+                    p2.set_anchor(a2)
+                    if blokus.any_wall_collisions(p2):
+                        p2.set_anchor(a)
+
+                elif event.key == pygame.K_DOWN:
+                    p2 = p.pending_piece
+                    a = p2.anchor
+                    a2 = (a[0], a[1]+1)
+
+                    p2.set_anchor(a2)
+                    if blokus.any_wall_collisions(p2):
+                        p2.set_anchor(a)
+
+                elif event.key == pygame.K_RIGHT:
+                    p2 = p.pending_piece
+                    a = p2.anchor
+                    a2 = (a[0]+1, a[1])
+
+                    p2.set_anchor(a2)
+                    if blokus.any_wall_collisions(p2):
+                        p2.set_anchor(a)
+
+                elif event.key == pygame.K_LEFT:
+                    p2 = p.pending_piece
+                    a = p2.anchor
+                    a2 = (a[0]-1, a[1])
+
+                    p2.set_anchor(a2)
+                    if blokus.any_wall_collisions(p2):
+                        p2.set_anchor(a) 
+
+                #process transformations
+                #don't currently know the needed keys, so I've just picked some
+                """elif event.key == pygame.K_f:
+                    p.pending_piece.flip_horizontally()
+                elif event.key == pygame.K_l:
+                    p.pending_piece.rotate_left()
+                elif event.key == pygame.K_r:
+                    p.pending_piece.rotate_right()"""
+
+            #process clicks
+            elif event.type == pygame.MOUSEBUTTONUP:
+                pos = event.pos
+
+                #click on the piece bank -> select piece
+                #click on grid -> set anchor + attempt to place
+           
+        draw_board(surface, blokus, players)
+        pygame.display.update()
+        clock.tick(24)
+
+    if blokus.winners is not None:
+        font = pygame.font.Font(None, 40)
+        t = "Player " + blokus.winners[0] + " wins!"
+        text = font.render(t, True, p.color)
+        surface.blit(text, ((surface.get_width()/2, surface.get_height()/2)))
+
+
+
+
+def play_blokus_bot(blokus: BlokusBase, players: list[Player]) -> None:
+    """Plays a game of blokus between bots
+
+    Args:
+        blokus: the blokus game
+        players: list of players
+
+    This method is currently (5/8/24) nonfunctional
+    """
+    
+    #initalize pygame
+    pygame.init()
+    pygame.display.set_caption("Blokus!")
+    clock = pygame.time.Clock()
+
+    #determine which side length to use
+    s = SIDE * blokus.size
+    if blokus.size >= 15:
         s = SMALL_SIDE * blokus.size
 
     #calculate # of pieces per row
@@ -221,7 +358,6 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
     nrow = math.ceil(21 / sq_per_row)
 
     surface = pygame.display.set_mode((s + SPACING, s + nrow*s_bank))
-
     while not blokus.game_over:
         p = players[blokus.curr_player-1]
 
@@ -242,70 +378,21 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
                     pygame.quit()
                     sys.exit()
 
-                #attempt to place piece
-                elif event.key == pygame.K_RETURN:
-                    if blokus.maybe_place(p.pending_piece):
-                        p._piece_grid[p.pending_piece.shape.kind] = True
-                        p.set_piece(p.pick_random_piece())
-                        #if it is the first piece, remove the chosen start position
+        pygame.time.wait(int(0.5*1000))
+        p.set_piece(p.bot.ni_bot(blokus, blokus.available_moves()))
+        blokus.maybe_place(p.pending_piece)
+        p._piece_grid[p.pending_piece.shape.kind] = True
 
-                #process arrow key events
-                elif event.key == pygame.K_UP:
-                    p2 = p.pending_piece
-                    a = p2.anchor
-                    a2 = (a[0], a[1]-1)
-
-                    p2.set_anchor(a2)
-                    if blokus.any_wall_collisions(p2):
-                        p2.set_anchor(a)
-                elif event.key == pygame.K_DOWN:
-                    p2 = p.pending_piece
-                    a = p2.anchor
-                    a2 = (a[0], a[1]+1)
-
-                    p2.set_anchor(a2)
-                    if blokus.any_wall_collisions(p2):
-                        p2.set_anchor(a)
-                elif event.key == pygame.K_RIGHT:
-                    p2 = p.pending_piece
-                    a = p2.anchor
-                    a2 = (a[0]+1, a[1])
-
-                    p2.set_anchor(a2)
-                    if blokus.any_wall_collisions(p2):
-                        p2.set_anchor(a)
-                elif event.key == pygame.K_LEFT:
-                    p2 = p.pending_piece
-                    a = p2.anchor
-                    a2 = (a[0]-1, a[1])
-
-                    p2.set_anchor(a2)
-                    if blokus.any_wall_collisions(p2):
-                        p2.set_anchor(a) 
-
-
-                #process transformations
-                #don't currently know the needed keys, so I've just picked some
-                """elif event.key == pygame.K_f:
-                    p.pending_piece.flip_horizontally()
-                elif event.key == pygame.K_l:
-                    p.pending_piece.rotate_left()
-                elif event.key == pygame.K_r:
-                    p.pending_piece.rotate_right()"""
-
-            elif event.type == pygame.MOUSEBUTTONUP:
-                pos = event.pos
-
-           
         draw_board(surface, blokus, players)
         pygame.display.update()
         clock.tick(24)
+
 
 #
 # Command-line interface
 #
 
-def cmd(size: int, mode: str) -> None:
+def cmd(size: int, mode: str, bot: bool = False) -> None:
     """
     Takes in command line input and creates a new blokus game
     """
@@ -313,7 +400,7 @@ def cmd(size: int, mode: str) -> None:
     num: int = 2
     s_pos: set[tuple[int, int]]
 
-    #determine things based on mono or duo
+    #determine size and start positions based on mono or duo
     if mode == "duo":
         size = 14
         s_pos = {(4,4), (9,9)}
@@ -332,14 +419,22 @@ def cmd(size: int, mode: str) -> None:
         #generate a random color
         #must check for duplicates + make sure color is not border or background color - do later
         color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-        players.append(Player(x, blokus, color))
+        if bot:
+            players.append(Player(x, blokus, color, True))
+        else:
+            players.append(Player(x, blokus, color))
 
-    play_blokus(blokus, players)
+    if bot:
+        play_blokus_bot(blokus, players)
+    else:
+        play_blokus(blokus, players)
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "duo" or sys.argv[1] == "mono":
             cmd(0, sys.argv[1])
+        elif sys.argv[1] == "bot":
+            cmd(14, "", True)
         else:
             cmd(int(sys.argv[1]), "")
     else:
