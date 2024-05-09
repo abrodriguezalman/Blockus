@@ -606,7 +606,7 @@ class BlokusFake(BlokusBase):
         to a single Shape that are considered available moves
         (because they may differ in location and orientation).
         """
-        available_pieces: set = set()
+        available_pieces: set[Piece] = set()
         shapes = self._players[self._curr_player].values()
         
         for shape in shapes:

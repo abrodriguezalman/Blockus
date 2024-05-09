@@ -1,5 +1,4 @@
 from typing import Optional
-
 from shape_definitions import ShapeKind, definitions
 from piece import Point, Shape, Piece
 from base import BlokusBase
@@ -17,12 +16,12 @@ from base import BlokusBase
 Cell = Optional[tuple[int, ShapeKind]]
 Grid = list[list[Cell]]
 
-
 class Blokus(BlokusBase):
     """
     Class for Blokus game.
-    """
 
+    This implementation behaves according to the official Blokus specifications.
+    """
 
     _shapes: dict[ShapeKind, Shape]
     _size: int
@@ -77,13 +76,13 @@ class Blokus(BlokusBase):
 
         #load in _shapes using the from_string method in piece.py
         self._shapes = {}
-        for shape, rep in definitions.items():
-            self._shapes[shape] = Shape.from_string(shape, rep)
+        for shape_kind, str_rep in definitions.items():
+            self._shapes[shape_kind] = Shape.from_string(shape_kind, str_rep)
 
         # a dictionary to keep track of the players and their pieces left
         # a dictionary to keep track of each player's last piece played
         self._players = {}
-        self._last_move: dict[int, None|ShapeKind] = {}
+        self._last_move: dict[int, Optional[ShapeKind]] = {}
         for i in range(num_players):
             self._players[i + 1] = self._shapes.copy()
             self._last_move[i + 1] = None
@@ -285,14 +284,14 @@ class Blokus(BlokusBase):
         """
         if piece.shape.kind not in self.remaining_shapes(self.curr_player):
             raise ValueError
-        
+
         #if first piece, must be on a start position
         if len(self.remaining_shapes(self.curr_player)) == len(self.shapes):
             for pos in self.start_positions:
                 if pos in piece.squares() and self.grid[pos[0]][pos[1]] is None:
                     return True
             return False
-        
+
         #corners/edges thing
         corners = piece.intercardinal_neighbors()
         edges = piece.cardinal_neighbors()
@@ -302,13 +301,13 @@ class Blokus(BlokusBase):
         for row in range(self.size):
             for col in range(self.size):
                 current = self.grid[row][col]
-                
+
                 if current is not None and current[0] == self.curr_player:
 
                     #if piece shares an edge, illegal
                     if (row, col) in edges:
                         return False
-                    
+
                     #piece must share at least one corner
                     if (row, col) in corners:
                         ret_val = True
@@ -334,7 +333,7 @@ class Blokus(BlokusBase):
         Raises ValueError if the player has already
         played a piece with this shape.
         """
-        
+
         #check if the piece is legal to place
         if self.legal_to_place(piece):
 
@@ -350,7 +349,7 @@ class Blokus(BlokusBase):
                 x2, y2 = square
                 #change the grid
                 self._grid[x2][y2] = (self.curr_player, piece.shape.kind)
-            
+
             # Add the piece to the last move dictionary
             self._last_move[self.curr_player] = piece.shape.kind
 
