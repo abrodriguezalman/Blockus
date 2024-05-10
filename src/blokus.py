@@ -32,6 +32,7 @@ class Blokus(BlokusBase):
     _retired_players: set[int]
     _start_positions: set[Point]
     _players: dict[int, dict[ShapeKind, Shape]]
+    _last_move: dict[int, Optional[ShapeKind]]
     empty_locations : set[Point]
 
     def __init__(self,
