@@ -606,12 +606,15 @@ class BlokusFake(BlokusBase):
         to a single Shape that are considered available moves
         (because they may differ in location and orientation).
         """
-        available_pieces: list = []
+        available_pieces: set[Piece] = set()
         shapes = self._players[self._curr_player].values()
+        
         for shape in shapes:
             p = Piece(shape)
             for loc in self.empty_locations:
-                p.set_anchor(loc)
-                if self.legal_to_place(p):
-                    available_pieces.append(p)
+                new_p = Piece(shape)
+                new_p.set_anchor(loc)
+                if self.legal_to_place(new_p):
+                    available_pieces.add(new_p)
+                    
         return available_pieces

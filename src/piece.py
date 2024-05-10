@@ -6,6 +6,7 @@ Modify only the methods marked as TODO.
 import copy
 from typing import Optional
 import textwrap
+
 import numpy as np
 
 from shape_definitions import ShapeKind
