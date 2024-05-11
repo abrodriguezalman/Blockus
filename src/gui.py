@@ -95,7 +95,6 @@ class Player:
         
         Input: p (Piece) - the new piece
         """
-        p.set_anchor(self.pending_piece.anchor)
         self._pending_piece = p
     
     def pick_random_piece(self) -> Piece:
@@ -358,6 +357,7 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
                             shape = blokus.shapes[skind]
                             piece = Piece(shape)
                             p.set_piece(piece)
+                            p.pending_piece.set_anchor(a)
 
                 #retire
                 elif retire.collidepoint(pos):
