@@ -21,8 +21,9 @@ from guibot import NIBot
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
 #constants for drawing the game board
-SIDE: int = 45
+SIDE: int = 40
 SMALL_SIDE: int = 35
+SMALLER_SIDE: int = 30
 BORDER: int = 1
 SPACING: int = 100
 
@@ -110,6 +111,8 @@ class Player:
         return piece
 
 def pick_size(blokus: BlokusBase) -> int:
+    if blokus.size >= 17:
+        return SMALLER_SIDE
     if blokus.size >= 15:
         return SMALL_SIDE
     return SIDE
@@ -132,10 +135,14 @@ def draw_board(surface: pygame.surface.Surface, blokus: BlokusBase, players: lis
     #pick a grid-box side length based on size
     s = pick_size(blokus)
 
+    s_bank = int(1.25*(s/blokus.size))    #size of a bank square
+    sq_per_row = math.floor((s)/s_bank)
+    nrow = math.ceil(21 / sq_per_row) 
+
     #draw the game board
     for row in range(size):
         for col in range(size):
-            rect = (row * s + SPACING/2, col * s + SPACING/2, s, s)
+            rect = (row * s + 1.25*SPACING, col * s + 1.25*SPACING, s, s)
 
             #fill in start positions - black
             if (row, col) in blokus.start_positions:
@@ -161,29 +168,30 @@ def draw_board(surface: pygame.surface.Surface, blokus: BlokusBase, players: lis
     #draw the pending piece
     #the pending piece will have a thicker black border
     for square in p.pending_piece.squares():
-        rect = (square[0] * s + SPACING/2, square[1] * s + SPACING/2, s, s)
+        rect = (square[0] * s + 1.25*SPACING, square[1] * s + 1.25*SPACING, s, s)
         pygame.gfxdraw.box(surface, rect, p.color)
         pygame.draw.rect(surface, color=(0, 0, 0),
                                  rect=rect, width=4*BORDER)
 
     #draw the piece bank
-    draw_piece_grid(surface, blokus, p)
+    for player in players:
+        draw_piece_grid(surface, blokus, player)
 
     #game summary
-    font = pygame.font.Font(None, 30)
+    """font = pygame.font.Font(None, 30)
     for p in players:
         t = "Player " + str(p.num)
         text = font.render(t, True, p.color)
-        surface.blit(text, ((s * blokus.size + 0.75*SPACING, SPACING * (p.num))))
+        surface.blit(text, ((s * blokus.size + 2*SPACING, SPACING * (p.num))))
 
         t = "Score = " + str(blokus.get_score(p.num))
         text = font.render(t, True, p.color)
-        surface.blit(text, ((s * blokus.size + 0.75*SPACING, SPACING * (p.num) + SPACING/4)))
+        surface.blit(text, ((s * blokus.size + 2*SPACING, SPACING * (p.num) + SPACING/4)))
 
         if p.num in blokus.retired_players:
             t = "Retired"
             text = font.render(t, True, p.color)
-            surface.blit(text, ((s * blokus.size + 0.75*SPACING, SPACING * p.num + SPACING/2)))
+            surface.blit(text, ((s * blokus.size + 2*SPACING, SPACING * p.num + SPACING/2)))"""
 
 
 
@@ -203,14 +211,23 @@ def draw_piece_grid(surface: pygame.surface.Surface, blokus: BlokusBase, p: Play
 
         #square to place the mini piece-drawing in
         #this is the LEFT aligh
-        row_place = (i - (row_count * sq_per_row)) * s_bank + SPACING/2
+        row_place = (i - (row_count * sq_per_row)) * s_bank + 1.25*SPACING
         margin = s * blokus.size - s_bank * sq_per_row
         row_place += margin/2
         
         #this is the TOP align
-        col_place = s * blokus.size + s_bank * row_count + SPACING/2
+        #adjust location based on the player
+        if p.num == 1 or p.num == 2:
+            col_place = s * blokus.size + s_bank * row_count + 1.25*SPACING
+        else:
+            col_place = 0.8*SPACING - row_count * s_bank
+        
         rect = pygame.Rect((row_place, col_place, s_bank, s_bank))
-        p._piece_grid[pi] = (played, rect)
+        if p.num == 1 or p.num == 4:
+            p._piece_grid[pi] = (played, rect)
+        elif p.num == 2 or p. num == 3:
+            rect = pygame.Rect((col_place, row_place, s_bank, s_bank))
+            p._piece_grid[pi] = (played, rect)
 
         #new row
         if (i+1) % sq_per_row == 0 and i > 0:
@@ -232,12 +249,22 @@ def draw_piece_grid(surface: pygame.surface.Surface, blokus: BlokusBase, p: Play
             s2 = s/5
             row = row_place + s2 * square[0] + rect.width/2
             col = col_place + s2 * square[1] + rect.height/2
-            rect2 = pygame.Rect((row, col, s2, s2))
+
+            rect2: pygame.Rect
+            if(p.num == 1):
+                rect2 = pygame.Rect((row, col, s2, s2))
+            elif(p.num == 2):
+                rect2 = pygame.Rect((col, row, s2, s2))
+            elif(p.num == 3):
+                rect2 = pygame.Rect((col, row, s2, s2))
+            elif(p.num == 4):
+                rect2 = pygame.Rect((row, col, s2, s2))
+            
 
             pygame.gfxdraw.box(surface, rect2, color)
             pygame.draw.rect(surface, color=(0, 0, 0),
                                  rect=rect2, width=BORDER)
-            
+
 
 def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
     """Plays a game of Blokus
@@ -253,9 +280,7 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
     clock = pygame.time.Clock()
 
     #determine which side length to use
-    s = SIDE * blokus.size
-    if blokus.size >= 15:
-        s = SMALL_SIDE * blokus.size
+    s = pick_size(blokus) * blokus.size
 
     #calculate # of pieces per row
     #this is used to determine surface size
@@ -263,12 +288,11 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
     sq_per_row = math.floor((s)/s_bank)
     nrow = math.ceil(21 / sq_per_row) 
 
-    surface = pygame.display.set_mode((s + 2*SPACING, s + nrow * s_bank + SPACING*.75))
+    surface = pygame.display.set_mode((s + 1.5 * nrow * s_bank + SPACING*1.5, 1.5 * s + nrow * s_bank + SPACING*1.5))
 
-    #create rectangles to represent the grid and piece bank
+    #create rectangle to represent the board
     #this will facilitate mouse events later on
-    board = pygame.Rect(SPACING/2, SPACING/2, s, s)
-    bank = pygame.Rect(SPACING/2, s + 0.5 * SPACING, s, math.ceil(21 / sq_per_row)  * s_bank)
+    board = pygame.Rect(1.25*SPACING, 1.25*SPACING, s, s)
 
     #play the game!
     while not blokus.game_over:
@@ -407,6 +431,7 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
                 #click on the grid -> set anchor
                 if board.collidepoint(pos):
                     t = s/blokus.size
+                    pos = (pos[0] - SPACING, pos[1] - SPACING)
                     (x,y) = (int(pos[0]/t)-1, int(pos[1]/t)-1)
                     
                     p2.set_anchor((x,y))
@@ -414,13 +439,13 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
                         p2.set_anchor(a)
                 
                 #click on bank -> choose piece
-                elif bank.collidepoint(pos):
-                    for skind in p._piece_grid:
-                        if p._piece_grid[skind][1].collidepoint(pos):
-                            shape = blokus.shapes[skind]
-                            piece = Piece(shape)
-                            p.set_piece(piece)
-                            p.pending_piece.set_anchor(a)
+                #elif bank.collidepoint(pos):
+                for skind in p._piece_grid:
+                    if p._piece_grid[skind][1].collidepoint(pos):
+                        shape = blokus.shapes[skind]
+                        piece = Piece(shape)
+                        p.set_piece(piece)
+                        p.pending_piece.set_anchor(a)
            
         draw_board(surface, blokus, players)
         pygame.display.update()
