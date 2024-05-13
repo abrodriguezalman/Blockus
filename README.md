@@ -5,3 +5,23 @@ Team members:
 - GUI: Avni Gupta (avnig)
 - Bot: Aybala Esmer (aybala)
 - QA: Sarah Murad (samurad)
+
+## Improvements
+
+### Game Logic
+
+
+### GUI
+
+
+### TUI
+
+
+### Bot
+
+
+### QA
+
+
+
+## Enhancements
