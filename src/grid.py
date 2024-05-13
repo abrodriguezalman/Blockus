@@ -85,7 +85,7 @@ def test_grid_1() -> None:
         ||. . . . . ||
         ||||||||||||||
         """
-    # Use s[1:-2] to get rid of extra newline characters
+    # Use s[1:-1] to get rid of extra newline characters
     assert dedent(s)[1:-1] == grid_to_string(grid)
     assert grid == string_to_grid(grid_to_string(grid))
 
@@ -111,7 +111,7 @@ def test_grid_2() -> None:
         ||. . 1F. . ||
         ||||||||||||||
         """
-    # Use s[1:-2] to get rid of extra newline characters
+    # Use s[1:-1] to get rid of extra newline characters
     assert dedent(s)[1:-1] == grid_to_string(grid)
     assert grid == string_to_grid(grid_to_string(grid))
 
@@ -154,7 +154,7 @@ def test_grid_3() -> None:
         ||. . . . . . . . . . . . . . ||
         ||||||||||||||||||||||||||||||||
         """
-    # Use s[1:-2] to get rid of extra newline characters
+    # Use s[1:-1] to get rid of extra newline characters
     assert dedent(s)[1:-1] == grid_to_string(grid)
     assert grid == string_to_grid(grid_to_string(grid))
 
@@ -206,7 +206,7 @@ def test_grid_4() -> None:
         ||. . . . . . . . . . ||
         ||||||||||||||||||||||||
         """
-    # Use s[1:-2] to get rid of extra newline characters
+    # Use s[1:-1] to get rid of extra newline characters
     assert dedent(s)[1:-1] == grid_to_string(grid)
     assert grid == string_to_grid(grid_to_string(grid))
 
@@ -251,6 +251,6 @@ def test_grid_5() -> None:
         ||. . . . . . . . . . ||
         ||||||||||||||||||||||||
         """
-    # Use s[1:-2] to get rid of extra newline characters
+    # Use s[1:-1] to get rid of extra newline characters
     assert dedent(s)[1:-1] == grid_to_string(grid)
     assert grid == string_to_grid(grid_to_string(grid))
