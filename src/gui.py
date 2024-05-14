@@ -149,12 +149,8 @@ def draw_board(surface: pygame.surface.Surface, blokus: BlokusBase, players: lis
     #draw the game board
     for row in range(size):
         for col in range(size):
-            rect: pygame.Rect
-            if blokus.num_players == 4:
-                rect = (row * s + board_align_row, col * s + board_align_col, s,s)
-            else:
-                rect = (row * s + surface.get_width()/2 - (s*blokus.size/2), col * s + 0.75*SPACING, s, s)
-
+            rect = (row * s + board_align_row, col * s + board_align_col, s,s)
+            
             #fill in start positions - black
             if (row, col) in blokus.start_positions:
                 pygame.gfxdraw.box(surface, rect, (0, 0, 0))
@@ -189,21 +185,28 @@ def draw_board(surface: pygame.surface.Surface, blokus: BlokusBase, players: lis
         draw_piece_grid(surface, blokus, player)
 
     #game summary
-    """font = pygame.font.Font(None, 30)
+    font = pygame.font.Font(None, 30)
     for p in players:
+        x = SPACING/8
+        y = SPACING/8
+
+        if p.num % 2 == 0:
+            x = surface.get_width() - 1.25*SPACING
+        if p.num - 2 <= 0:
+            y  = surface.get_height() - 0.75*SPACING
+
         t = "Player " + str(p.num)
         text = font.render(t, True, p.color)
-        surface.blit(text, ((s * blokus.size + 2*SPACING, SPACING * (p.num))))
+        surface.blit(text, ((x,y)))
 
         t = "Score = " + str(blokus.get_score(p.num))
         text = font.render(t, True, p.color)
-        surface.blit(text, ((s * blokus.size + 2*SPACING, SPACING * (p.num) + SPACING/4)))
+        surface.blit(text, ((x, y + SPACING/4)))
 
         if p.num in blokus.retired_players:
             t = "Retired"
             text = font.render(t, True, p.color)
-            surface.blit(text, ((s * blokus.size + 2*SPACING, SPACING * p.num + SPACING/2)))"""
-
+            surface.blit(text, ((x, y + SPACING/2)))
 
 
 def draw_piece_grid(surface: pygame.surface.Surface, blokus: BlokusBase, p: Player) -> None:
@@ -211,9 +214,9 @@ def draw_piece_grid(surface: pygame.surface.Surface, blokus: BlokusBase, p: Play
     s = pick_size(blokus)
 
     #calculate # of squares of size s_bank that can fit in a single row below the board
-    
-    s_bank = int(1.25*s)     
-    sq_per_row = math.floor((s * blokus.size)/s_bank)
+    s_bank, sq_per_row, nrow = bank_calcs(blokus, s*blokus.size)
+    if blokus.size <= 7:
+        sq_per_row += 1
     row_count = 0
 
     board = pygame.Rect(surface.get_width()/2 - (s*blokus.size/2), surface.get_height()/2 - (s*blokus.size/2), s*blokus.size, s*blokus.size)
@@ -224,7 +227,7 @@ def draw_piece_grid(surface: pygame.surface.Surface, blokus: BlokusBase, p: Play
         played = p._piece_grid[pi][0]
 
         #square to place the mini piece-drawing in
-        #this is the LEFT aligh
+        #this is the LEFT align
         row_place = board.left + (i - (row_count * sq_per_row)) * s_bank
         margin = s * blokus.size - s_bank * sq_per_row
         row_place += margin/2
@@ -234,10 +237,10 @@ def draw_piece_grid(surface: pygame.surface.Surface, blokus: BlokusBase, p: Play
             col_place = board.bottom + s_bank * row_count
         elif p.num == 2:
             col_place = board.right + s_bank * row_count
-            row_place += s
+            #row_place += s_bank
         elif p.num == 3:
             col_place = board.left - s_bank * (row_count + 1)
-            row_place += s
+            #row_place += s_bank
         elif p.num == 4:
             col_place = board.top - s_bank * (row_count + 1)
         
@@ -305,12 +308,7 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
     #this is used to determine surface size
     s_bank, sq_per_row, nrow = bank_calcs(blokus, int(s))
 
-    surface: pygame.surface.Surface
-    
-    if blokus.num_players == 4:
-        surface = pygame.display.set_mode((s + (nrow * s_bank) + SPACING*1.5, s + (nrow-1)*(s_bank + 0.25* SPACING) + 2.5*SPACING))
-    else:
-        surface = pygame.display.set_mode((1,1))
+    surface = pygame.display.set_mode((s + ((nrow+1) * (s_bank + SPACING/4)) + SPACING/2, s + (nrow-1)*(s_bank + 0.25* SPACING) + 2*SPACING))
 
     #create rectangle to represent the board
     #this will facilitate mouse events later on
