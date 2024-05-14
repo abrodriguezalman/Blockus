@@ -117,6 +117,13 @@ def pick_size(blokus: BlokusBase) -> int:
         return SMALL_SIDE
     return SIDE
 
+def bank_calcs(blokus: BlokusBase, s: int) -> tuple[int, int, int]:
+    s_bank = int(1.25*(s/blokus.size))    #size of a bank square
+    sq_per_row = math.floor((s)/s_bank)
+    nrow = math.ceil(21 / sq_per_row) 
+
+    return (s_bank, sq_per_row, nrow)
+
 def draw_board(surface: pygame.surface.Surface, blokus: BlokusBase, players: list[Player]) -> None:
     """ Draws the current state of the board in the window
 
@@ -135,14 +142,18 @@ def draw_board(surface: pygame.surface.Surface, blokus: BlokusBase, players: lis
     #pick a grid-box side length based on size
     s = pick_size(blokus)
 
-    s_bank = int(1.25*(s/blokus.size))    #size of a bank square
-    sq_per_row = math.floor((s)/s_bank)
-    nrow = math.ceil(21 / sq_per_row) 
+    #aligning values
+    board_align_row = surface.get_width()/2 - (s*blokus.size/2)
+    board_align_col = surface.get_height()/2 - (s*blokus.size/2)
 
     #draw the game board
     for row in range(size):
         for col in range(size):
-            rect = (row * s + 1.25*SPACING, col * s + 1.25*SPACING, s, s)
+            rect: pygame.Rect
+            if blokus.num_players == 4:
+                rect = (row * s + board_align_row, col * s + board_align_col, s,s)
+            else:
+                rect = (row * s + surface.get_width()/2 - (s*blokus.size/2), col * s + 0.75*SPACING, s, s)
 
             #fill in start positions - black
             if (row, col) in blokus.start_positions:
@@ -168,7 +179,7 @@ def draw_board(surface: pygame.surface.Surface, blokus: BlokusBase, players: lis
     #draw the pending piece
     #the pending piece will have a thicker black border
     for square in p.pending_piece.squares():
-        rect = (square[0] * s + 1.25*SPACING, square[1] * s + 1.25*SPACING, s, s)
+        rect = (square[0] * s + board_align_row, square[1] * s + board_align_col, s, s)
         pygame.gfxdraw.box(surface, rect, p.color)
         pygame.draw.rect(surface, color=(0, 0, 0),
                                  rect=rect, width=4*BORDER)
@@ -200,10 +211,13 @@ def draw_piece_grid(surface: pygame.surface.Surface, blokus: BlokusBase, p: Play
     s = pick_size(blokus)
 
     #calculate # of squares of size s_bank that can fit in a single row below the board
+    
     s_bank = int(1.25*s)     
     sq_per_row = math.floor((s * blokus.size)/s_bank)
     row_count = 0
-    
+
+    board = pygame.Rect(surface.get_width()/2 - (s*blokus.size/2), surface.get_height()/2 - (s*blokus.size/2), s*blokus.size, s*blokus.size)
+
     #draw the piece bank
     for i in range(len(p._piece_grid)):
         pi = list(p._piece_grid.keys())[i]
@@ -211,16 +225,21 @@ def draw_piece_grid(surface: pygame.surface.Surface, blokus: BlokusBase, p: Play
 
         #square to place the mini piece-drawing in
         #this is the LEFT aligh
-        row_place = (i - (row_count * sq_per_row)) * s_bank + 1.25*SPACING
+        row_place = board.left + (i - (row_count * sq_per_row)) * s_bank
         margin = s * blokus.size - s_bank * sq_per_row
         row_place += margin/2
         
-        #this is the TOP align
-        #adjust location based on the player
-        if p.num == 1 or p.num == 2:
-            col_place = s * blokus.size + s_bank * row_count + 1.25*SPACING
-        else:
-            col_place = 0.8*SPACING - row_count * s_bank
+        #adjust TOP (col_place) and LEFT (row_place) align based on the player
+        if p.num == 1:
+            col_place = board.bottom + s_bank * row_count
+        elif p.num == 2:
+            col_place = board.right + s_bank * row_count
+            row_place += s
+        elif p.num == 3:
+            col_place = board.left - s_bank * (row_count + 1)
+            row_place += s
+        elif p.num == 4:
+            col_place = board.top - s_bank * (row_count + 1)
         
         rect = pygame.Rect((row_place, col_place, s_bank, s_bank))
         if p.num == 1 or p.num == 4:
@@ -284,15 +303,19 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
 
     #calculate # of pieces per row
     #this is used to determine surface size
-    s_bank = int(1.25*(s/blokus.size))    #size of a bank square
-    sq_per_row = math.floor((s)/s_bank)
-    nrow = math.ceil(21 / sq_per_row) 
+    s_bank, sq_per_row, nrow = bank_calcs(blokus, int(s))
 
-    surface = pygame.display.set_mode((s + 1.5 * nrow * s_bank + SPACING*1.5, 1.5 * s + nrow * s_bank + SPACING*1.5))
+    surface: pygame.surface.Surface
+    
+    if blokus.num_players == 4:
+        surface = pygame.display.set_mode((s + (nrow * s_bank) + SPACING*1.5, s + (nrow-1)*(s_bank + 0.25* SPACING) + 2.5*SPACING))
+    else:
+        surface = pygame.display.set_mode((1,1))
 
     #create rectangle to represent the board
     #this will facilitate mouse events later on
-    board = pygame.Rect(1.25*SPACING, 1.25*SPACING, s, s)
+    board = pygame.Rect(surface.get_width()/2 - (s/2), surface.get_height()/2 - (s/2), s, s)
+
 
     #play the game!
     while not blokus.game_over:
@@ -431,15 +454,15 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
                 #click on the grid -> set anchor
                 if board.collidepoint(pos):
                     t = s/blokus.size
-                    pos = (pos[0] - SPACING, pos[1] - SPACING)
-                    (x,y) = (int(pos[0]/t)-1, int(pos[1]/t)-1)
-                    
+                    x = math.floor((pos[0] + board.top)/t) - 7
+                    y = math.floor((pos[1] + board.left)/t) - 7
+
+                    print((x,y))
                     p2.set_anchor((x,y))
                     if blokus.any_wall_collisions(p2):
                         p2.set_anchor(a)
                 
                 #click on bank -> choose piece
-                #elif bank.collidepoint(pos):
                 for skind in p._piece_grid:
                     if p._piece_grid[skind][1].collidepoint(pos):
                         shape = blokus.shapes[skind]
