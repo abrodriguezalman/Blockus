@@ -486,9 +486,20 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
                     sys.exit()
     
         if blokus.winners is not None:
+            if len(blokus.winners) == 1:
+                t = "Player " + str(blokus.winners[0]) + " wins!"
+                col = p.color
+            else:
+                t = "Players "
+                for w in range(len(blokus.winners)-1):
+                    t += str(w+1)
+                    t += ", "
+                t += str(blokus.winners[len(blokus.winners)-1])
+                t += " win!"
+                col = (0, 0, 0)
+
             font = pygame.font.Font(None, 70)
-            t = "Player " + str(blokus.winners[0]) + " wins!"
-            text = font.render(t, True, p.color)
+            text = font.render(t, True, col)
             cen = text.get_rect(center = board.center)
             surface.blit(text, cen)
 
