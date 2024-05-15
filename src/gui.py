@@ -343,7 +343,8 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
 
                         #update piece_grid and pick a new pending piece
                         p._piece_grid[p2.shape.kind] = (True, p._piece_grid[p2.shape.kind][1])
-                        p.set_piece(p.pick_random_piece())
+                        if len(blokus.remaining_pieces(p.num)):
+                            p.set_piece(p.pick_random_piece())
 
                 #process arrow key events (moving the pending piece)
                 elif event.key == pygame.K_UP:
@@ -452,8 +453,8 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
                 #click on the grid -> set anchor
                 if board.collidepoint(pos):
                     t = s/blokus.size
-                    x = math.floor((pos[0] + board.top)/t) - 7
-                    y = math.floor((pos[1] + board.left)/t) - 7
+                    x = math.floor((pos[0]-board.left)/t)
+                    y = math.floor((pos[1]-board.top)/t)
 
                     print((x,y))
                     p2.set_anchor((x,y))
