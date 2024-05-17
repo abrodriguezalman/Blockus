@@ -426,7 +426,6 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
                 #process transformations
                 elif event.key == pygame.K_SPACE:
                     p2.flip_horizontally()
-                    print(p2.squares())
                 elif event.key == pygame.K_e:
                     p2.rotate_left()
                 elif event.key == pygame.K_r:
