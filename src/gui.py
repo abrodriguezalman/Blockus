@@ -15,7 +15,7 @@ from blokus import Blokus
 from shape_definitions import ShapeKind
 from piece import Piece
 import colorsys
-from guibot import SBot
+from guibot import NIBot
 
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
@@ -159,10 +159,10 @@ def draw_board(surface: pygame.surface.Surface, blokus: BlokusBase, players: lis
     #draw the game board
     for row in range(size):
         for col in range(size):
-            rect = (row * s + board_align_row, col * s + board_align_col, s,s)
+            rect = (col * s + board_align_row, row * s + board_align_col, s,s)
             
             #fill in start positions - black
-            if (row, col) in blokus.start_positions:
+            if (col, row) in blokus.start_positions:
                 pygame.gfxdraw.box(surface, rect, (0, 0, 0))
             
             #if there is a piece on the square, fill in with player's color
@@ -185,7 +185,7 @@ def draw_board(surface: pygame.surface.Surface, blokus: BlokusBase, players: lis
     #draw the pending piece
     #the pending piece will have a thicker black border
     for square in p.pending_piece.squares():
-        rect = (square[0] * s + board_align_row, square[1] * s + board_align_col, s, s)
+        rect = (square[1] * s + board_align_row, square[0] * s + board_align_col, s, s)
         pygame.gfxdraw.box(surface, rect, p.color)
         pygame.draw.rect(surface, color=(0, 0, 0),
                                  rect=rect, width=4*BORDER)
@@ -399,22 +399,22 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
 
                 #process arrow key events (moving the pending piece)
                 elif event.key == pygame.K_UP:
-                    a2 = (a[0], a[1]-1)
+                    a2 = (a[0]-1, a[1])
                     p2.set_anchor(a2)
                     if blokus.any_wall_collisions(p2):
                         p2.set_anchor(a)
                 elif event.key == pygame.K_DOWN:
-                    a2 = (a[0], a[1]+1)
-                    p2.set_anchor(a2)
-                    if blokus.any_wall_collisions(p2):
-                        p2.set_anchor(a)
-                elif event.key == pygame.K_RIGHT:
                     a2 = (a[0]+1, a[1])
                     p2.set_anchor(a2)
                     if blokus.any_wall_collisions(p2):
                         p2.set_anchor(a)
+                elif event.key == pygame.K_RIGHT:
+                    a2 = (a[0], a[1]+1)
+                    p2.set_anchor(a2)
+                    if blokus.any_wall_collisions(p2):
+                        p2.set_anchor(a)
                 elif event.key == pygame.K_LEFT:
-                    a2 = (a[0]-1, a[1])
+                    a2 = (a[0], a[1]-1)
                     p2.set_anchor(a2)
                     if blokus.any_wall_collisions(p2):
                         p2.set_anchor(a) 
@@ -426,6 +426,7 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
                 #process transformations
                 elif event.key == pygame.K_SPACE:
                     p2.flip_horizontally()
+                    print(p2.squares())
                 elif event.key == pygame.K_e:
                     p2.rotate_left()
                 elif event.key == pygame.K_r:
