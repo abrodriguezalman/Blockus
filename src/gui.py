@@ -15,7 +15,6 @@ from blokus import Blokus
 from shape_definitions import ShapeKind
 from piece import Piece
 import colorsys
-from guibot import NIBot
 
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
@@ -94,7 +93,10 @@ class Player:
             self._pending_piece = p
     
     def pick_random_piece(self) -> Piece:
-        """pick a random piece to play from remaining pieces"""
+        """pick a random piece to play from remaining pieces
+        
+        Output: Piece - a piece that is available to play
+        """
 
         remaining = self._blokus.remaining_shapes(self.num)
         shapekind = random.choice(remaining)
@@ -133,6 +135,32 @@ def bank_calcs(blokus: BlokusBase, s: int) -> tuple[int, int, int]:
     nrow = math.ceil(21 / sq_per_row) 
 
     return (s_bank, sq_per_row, nrow)
+
+def generate_color() -> Color:
+    """generates a random color in (R,G,B) format
+
+    Output: Color - a color
+    """
+    #generate in HLS first, then convert to RGB-255
+    #allows us to filter out annoying colors
+    color = (random.randint(0, 360)/360, random.randrange(30, 80)/100, random.randrange(40, 80)/100)
+    color = colorsys.hls_to_rgb(color[0], color[1], color[2])
+    color = (color[0] * 255, color[1] * 255, color[2] * 255)
+
+    return color
+
+def color_difference(c: Color, color: Color) -> float:
+    """finds the difference between two colors using a weighted RGB method
+
+    Inputs:
+        c, color (Color) - the colors whose difference to calculate
+
+    Output: float - the numerical color difference
+    """
+    col_diff = 0.3*(c[0]-color[0])**2 + 0.59*(c[1]-color[1])**2 + 0.11*(c[2]-color[2])**2
+    col_diff = math.sqrt(col_diff)
+
+    return col_diff
 
 def draw_board(surface: pygame.surface.Surface, blokus: BlokusBase, players: list[Player]) -> None:
     """ Draws the current state of the board in the window
@@ -288,8 +316,8 @@ def draw_piece_grid(surface: pygame.surface.Surface, blokus: BlokusBase, p: Play
         #draw a mini version of each piece
         for square in blokus.shapes[pi].squares:
             s2 = s/5
-            row = row_place + s2 * square[0] + rect.width/2
-            col = col_place + s2 * square[1] + rect.height/2
+            row = row_place + s2 * square[1] + rect.width/2
+            col = col_place + s2 * square[0] + rect.height/2
 
             rect2: pygame.Rect
             if(p.num == 1):
@@ -446,8 +474,8 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
                     x = math.floor((pos[0]-board.left)/t)
                     y = math.floor((pos[1]-board.top)/t)
 
-                    print((x,y))
-                    p2.set_anchor((x,y))
+                    #remember - the grid uses (row, col) coordinates
+                    p2.set_anchor((y,x))
                     if blokus.any_wall_collisions(p2):
                         p2.set_anchor(a)
                 
@@ -492,9 +520,18 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
                 t += " win!"
                 col = (0, 0, 0)
 
+            
+
             font = pygame.font.Font(None, 70)
             text = font.render(t, True, col)
             cen = text.get_rect(center = board.center)
+
+            win_rect = cen
+            win_rect = win_rect.inflate(40, 40)
+            shadow_rect = win_rect.move(-5,5)
+            pygame.draw.rect(surface, (128,128,128), shadow_rect)
+            pygame.draw.rect(surface, (229, 204, 255), win_rect)
+            pygame.draw.rect(surface, (0,0,0), win_rect, width=2*BORDER)
             surface.blit(text, cen)
 
             #update board
@@ -538,22 +575,21 @@ def cmd(num_players: int, size: str, s_pos: set[tuple[int,int]], game: str, bot:
 
     #create list of players and assign random colors
     players = list()
+    col_list = {(102,0,204), (229, 204, 255)}
     for x in range(1, blokus.num_players+1):
-        #generate a random color
-        #must check for duplicates + make sure color is not border or background color - do later
+        #generate a random color for the player to use
         
-        """col_list = distinctipy.get_colors(10, exclude_colors=[(0,0,0), (1,1,1), (192/255, 192/255, 192/255), (229/255, 204/255, 1), (102/255, 0, 204/255)])
-        print(col_list)
-        distinctipy.color_swatch(col_list)
-
-        for i in range(len(col_list)):
-            col_list[i] = distinctipy.get_rgb256(col_list[i])
-        print(col_list)"""
-
-        #generate in HLS first, then convert to RGB-255
-        color = (random.randint(0, 360)/360, random.randrange(30, 80)/100, random.randrange(40, 100)/100)
-        color = colorsys.hls_to_rgb(color[0], color[1], color[2])
-        color = (color[0] * 255, color[1] * 255, color[2] * 255)
+        color = generate_color()
+        
+        #check that the color is different enough from the other players' colors and the background
+        #note: this check is imperfect
+        #algorithmic color differentiation is a surprisingly difficult task
+        for c in col_list:
+            col_diff = color_difference(color, c)
+            while col_diff < 50:
+                color = generate_color()
+                col_diff = color_difference(color, c)
+        col_list.add(color)
 
         if bot:
             players.append(Player(x, blokus, color, True))
