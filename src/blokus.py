@@ -69,7 +69,7 @@ class Blokus(BlokusBase):
 
         #a set of locations that are empty in the grid, that keeps track of the
         #empty locations (aybalas request)
-        self.empty_locations: set = set()
+        self.empty_locations: set[Point] = set()
         for x in range(size + 1):
             for y in range(size + 1):
                 self.empty_locations.add((x,y))
