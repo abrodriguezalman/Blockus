@@ -71,8 +71,8 @@ class Blokus(BlokusBase):
         #a set of locations that are empty in the grid, that keeps track of the
         #empty locations (aybalas request)
         self.empty_locations: set[Point] = set()
-        for x in range(size + 1):
-            for y in range(size + 1):
+        for x in range(size):
+            for y in range(size):
                 self.empty_locations.add((x,y))
 
         #load in _shapes using the from_string method in piece.py
@@ -290,7 +290,7 @@ class Blokus(BlokusBase):
         if len(self.remaining_shapes(self.curr_player)) == len(self.shapes):
             for pos in self.start_positions:
                 if pos in piece.squares() and self.grid[pos[0]][pos[1]] is None:
-                    return True
+                    return not self.any_wall_collisions(piece)
             return False
 
         #corners/edges thing
@@ -409,23 +409,30 @@ class Blokus(BlokusBase):
         to a single Shape that are considered available moves
         (because they may differ in location and orientation).
         """
-        available_pieces: set = set()
+        available_pieces: set[Piece]  = set()
         shapes = self._players[self._curr_player].values()
         for shape in shapes:
-            p = Piece(shape)
             for loc in self.empty_locations:
+                p = Piece(shape)
                 p.set_anchor(loc)
-                for _ in range(3):
-                    p.rotate_right()
-                    if self.legal_to_place(p):
-                        available_pieces.add(p)
                 p.flip_horizontally()
                 if self.legal_to_place(p):
                     available_pieces.add(p)
-                for _ in range(3):
-                    p.rotate_left()
+    
+                for n in range(3):
+                    p = Piece(shape)
+                    p.set_anchor(loc)
+                    for _ in range(n):
+                       p.rotate_right()
+                    if self.legal_to_place(p):
+                        available_pieces.add(p)
+
+                for n in range(3):
+                    p = Piece(shape)
+                    p.set_anchor(loc)
+                    p.flip_horizontally()
+                    for _ in range(n):
+                       p.rotate_right()
                     if self.legal_to_place(p):
                         available_pieces.add(p)
         return available_pieces
-    
-
