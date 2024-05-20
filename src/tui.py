@@ -270,6 +270,11 @@ def play_blokus(game: 'Blokus') -> None:
             if blokus.game.any_wall_collisions(curr_player_ppiece):
                 curr_player.pending_piece.rotate_right()
 
+        if c == ord(' '):
+            curr_player.pending_piece.flip_horizontally()
+            if blokus.game.any_wall_collisions(curr_player_ppiece):
+                curr_player.pending_piece.flip_horizontally()
+
         if c == ord("q"):
             blokus.game.retire()
             if blokus.game.game_over:
