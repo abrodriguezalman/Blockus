@@ -89,8 +89,9 @@ class Player:
         
         Input: p (Piece) - the new piece
         """
-        if p.shape not in self._blokus.remaining_shapes(self.num):
+        if p.shape.kind in self._blokus.remaining_shapes(self.num):
             self._pending_piece = p
+            print("HI")
     
     def pick_random_piece(self) -> Piece:
         """pick a random piece to play from remaining pieces
@@ -228,10 +229,14 @@ def draw_board(surface: pygame.surface.Surface, blokus: BlokusBase, players: lis
         x = SPACING/8
         y = SPACING/8
 
-        if p.num % 2 == 0:
-            x = surface.get_width() - 1.25*SPACING
-        if p.num - 2 <= 0:
-            y  = surface.get_height() - 0.75*SPACING
+        if len(players) == 1:
+            x = surface.get_width()/2 - SPACING/2
+            y = SPACING*0.75
+        else:
+            if p.num % 2 == 0:
+                x = surface.get_width() - 1.25*SPACING
+            if p.num - 2 <= 0:
+                y  = surface.get_height() - 0.75*SPACING
 
         t = "Player " + str(p.num)
         text = font.render(t, True, p.color)
@@ -357,6 +362,9 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
 
     #the pygame surface
     surface = pygame.display.set_mode((s + ((nrow+1) * (s_bank + SPACING/4)) + SPACING/2, s + (nrow-1)*(s_bank + 0.25* SPACING) + 2*SPACING))
+    if blokus.num_players == 1:
+        surface = pygame.display.set_mode((s + SPACING/2, s + (nrow-1)*(s_bank + 0.25* SPACING) + 2*SPACING))
+
 
     #create rectangle to represent the board
     #and a dictionary mapping keys to shapekinds
@@ -392,13 +400,13 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
         p2 = p.pending_piece
         a = p.pending_piece.anchor
 
-        if p.is_bot:
+        """if p.is_bot:
             if SBot.s_bot(blokus) is None:
                 blokus.retire()
             else:
                 p.set_piece(SBot.s_bot(blokus))
                 blokus.maybe_place(p.pending_piece)
-                p._piece_grid[p2.shape.kind] = (True, p._piece_grid[p2.shape.kind][1])
+                p._piece_grid[p2.shape.kind] = (True, p._piece_grid[p2.shape.kind][1])"""
 
         #proesss pygame events
         events = pygame.event.get()
@@ -454,14 +462,23 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
                 #process transformations
                 elif event.key == pygame.K_SPACE:
                     p2.flip_horizontally()
+                    if blokus.any_wall_collisions(p2):
+                        p2.flip_horizontally()
+
                 elif event.key == pygame.K_e:
                     p2.rotate_left()
+                    if blokus.any_wall_collisions(p2):
+                        p2.rotate_right()
+
                 elif event.key == pygame.K_r:
                     p2.rotate_right()
+                    if blokus.any_wall_collisions(p2):
+                        p2.rotate_left()
 
                 #select pieces based on keyboard events
                 elif event.key in key_dict:
-                    p.set_piece(Piece(blokus.shapes[key_dict[event.key]]))
+                    shape = blokus.shapes[key_dict[event.key]]
+                    p.set_piece(Piece(shape))
                     p.pending_piece.set_anchor(a)
 
             #process clicks
