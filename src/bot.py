@@ -8,29 +8,7 @@ import random
 from typing import Optional
 import click
 
-@click.command()
-@click.option('-n', '--num-games', type = click.INT, default = 20)
-@click.option('-1', '--player1', type = click.STRING, default = "N")
-@click.option('-2', '--player2', type = click.STRING, default = "N")
 
-def main(player1: str, player2: str, n: int) -> str:
-    win0 = 0
-    win1 = 0
-    tie = 0
-    for _ in range(n):
-        winners = game(player1, player2)
-        if len(winners) > 1:
-            tie += 1
-        elif 1 in winners:
-            win0 += 1
-        else:
-            win1 += 1
-    return \
-    f"Bot 0 Wins |  {(win0 / n) * 100} %\
-    \nBot 1 Wins |  {(win1 / n) * 100} %\
-    \nTies       |  {(tie / n) * 100} % \n"
-
-print(main())
 
 
 def game(player1: str, player2: str) -> list[int] | None:
@@ -138,7 +116,7 @@ def u_bot(blokus: "Blokus") -> None:
     Returns [None]: Just plays or retires
     """
     avail_moves: set[Piece] = blokus.available_moves()
-    print("sbot: ", len(avail_moves))
+    print("Ubot: ", len(avail_moves))
     length = len(avail_moves)
     if length != 0:
         for _ in range(length):
@@ -188,3 +166,26 @@ def choose_smaller(pcs: set[Piece]) -> Piece:
     return min_piece
 
 
+@click.command()
+@click.option('-n', '--num-games', type = click.INT, default = 20)
+@click.option('-1', '--player1', type = click.STRING, default = "N")
+@click.option('-2', '--player2', type = click.STRING, default = "N")
+
+def main(player1: str, player2: str, num_games: int) -> str:
+    win0 = 0
+    win1 = 0
+    tie = 0
+    for _ in range(num_games):
+        winners = game(player1, player2)
+        if len(winners) > 1:
+            tie += 1
+        elif 1 in winners:
+            win0 += 1
+        else:
+            win1 += 1
+    return \
+    f"Bot 0 Wins |  {(win0 / num_games) * 100} %\
+    \nBot 1 Wins |  {(win1 / num_games) * 100} %\
+    \nTies       |  {(tie / num_games) * 100} % \n"
+
+print(main())
