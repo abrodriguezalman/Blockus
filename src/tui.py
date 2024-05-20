@@ -148,7 +148,7 @@ class TUI_game():
                 cell = grid[row][col]
 
                 if (row, col) in pp_sqrs:
-                    self._print("▒▒", \
+                    self._print("██", \
                     curses.A_BLINK | self.get_player(curr_player).color)
                 elif cell is None:
                     if (row, col) in self.game.start_positions:
