@@ -8,6 +8,7 @@ from piece import Piece, Point
 
 ESC = 27
 ENTER_KEYS = [10, 13]
+curses.set_escdelay(25)
 
 def colors() -> None:
     """
@@ -174,7 +175,8 @@ class TUI_game():
 
             for shape in self.game.shapes.keys():
                 if shape in self.game.remaining_shapes(player.n):
-                    if shape == player.pending_piece.shape.kind:
+                    if shape == player.pending_piece.shape.kind \
+                    and self.game.curr_player == player.n:
                         self._print(shape.value, curses.A_BLINK | player.color)
                     else:
                         self._print(shape.value, player.color)
