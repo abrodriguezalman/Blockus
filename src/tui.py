@@ -1,8 +1,8 @@
 import curses
-import sys
 import random
+import click
 from typing import Any
-from fakes import BlokusFake
+from blokus import Blokus
 from shape_definitions import ShapeKind
 from piece import Piece, Point
 
@@ -33,11 +33,11 @@ class TUI_player():
     Class to represent a TUI Blockus Player.
     """
     n: int
-    game: BlokusFake
+    game: Blokus
     color: Any
     pending_piece: Piece
 
-    def __init__(self, n: int, game: BlokusFake) -> None:
+    def __init__(self, n: int, game: Blokus) -> None:
         self.n = n
         self.game = game
         self.color = curses.color_pair(n)
@@ -53,10 +53,10 @@ class TUI_player():
         Returns [Piece]: a Piece object
         """
         pp_shape = self.game.shapes[sh]
-        pending_piece = Piece(pp_shape)
-        pending_piece.set_anchor((self.game.size // 2, self.game.size // 2))
+        new_piece = Piece(pp_shape)
+        new_piece.set_anchor((self.game.size // 2, self.game.size // 2))
 
-        return pending_piece
+        return new_piece
 
     def random_shape(self) -> ShapeKind:
         """
@@ -69,22 +69,21 @@ class TUI_player():
         """
         return random.choice(self.game.remaining_shapes(self.n))
 
-
 class TUI_game():
     """
     Class for representing a TUI Blokus game.
     """
-    game: BlokusFake
+    game: Blokus
     screen: Any
     players: dict[int, TUI_player]
 
-    def __init__(self, game: BlokusFake) -> None:
+    def __init__(self, game: Blokus) -> None:
         self.game = game
         self.screen = curses.initscr()
-        curses.start_color()
         self.players = {}
-
+        curses.start_color()
         colors()
+        
         for i in range (1, self.game.num_players + 1):
             self.players[i] = TUI_player(i, self.game)
 
@@ -107,7 +106,7 @@ class TUI_game():
         Inputs:
             string [str]: the string to be printed
             color [int]: the color for the printed string
-            x [int]: the horizontal position where to print the string
+            x [int]: the vertical position where to print the string
                 to the screen
 
         Returns [None]: Nothing, just prints to screen.
@@ -116,7 +115,7 @@ class TUI_game():
             self.screen.addstr(string, color)
         else:
             self.screen.addstr(x, 0, string, color)
-
+    
     def draw_board(self) -> None:
         """
         Draws the current state of the Blokus game board to the screen.
@@ -127,6 +126,7 @@ class TUI_game():
         Returns [None]: Nothing, just prints to screen.
         """
         self.screen.clear()
+        curses.resize_term(100, 100)
 
         grid_color: Any = curses.color_pair(8)
         empty: Any = curses.color_pair(9)
@@ -137,15 +137,16 @@ class TUI_game():
 
         row = 0
         for i in range(1, size * 2, 2):
+            col = 0
+            
             if i == 1:
                 self._print("┌" + "──┬" * size, grid_color, i - 1)
-            col = 0
             self._print("│", grid_color, i)
 
             for j in range(1, size + 1):
                 cell = grid[row][col]
 
-                if (row,col) in pp_sqrs:
+                if (row, col) in pp_sqrs:
                     self._print("▒▒", \
                     curses.A_BLINK | self.get_player(curr_player).color)
                 elif cell is None:
@@ -165,21 +166,35 @@ class TUI_game():
             row += 1
 
         for player in self.players.values():
-            self._print(f"Player {player.n}:", player.color, (row + 1) * 2)
+            if player.n in self.game.retired_players:
+                self._print(f"Player {player.n} (RETIRED):", player.color, (row + 1) * 2)
+            else:
+                self._print(f"Player {player.n} (ACTIVE):", player.color, (row + 1) * 2)
             self._print(" ", curses.COLOR_BLACK)
 
             for shape in self.game.shapes.keys():
                 if shape in self.game.remaining_shapes(player.n):
-                    self._print(shape.value, player.color)
+                    if shape == player.pending_piece.shape.kind:
+                        self._print(shape.value, curses.A_BLINK | player.color)
+                    else:
+                        self._print(shape.value, player.color)
                 else:
-                    self._print(shape.value, curses.COLOR_WHITE)
+                    self._print(shape.value, grid_color)
                 self._print(" ", curses.COLOR_BLACK)
-
+            
+            self._print(f"Score: {self.game.get_score(player.n)}", player.color)
             row += 1
 
+        if self.game.game_over:
+            if self.game.winners is None:
+                self._print(f"NONE WON!", grid_color, (row + 1) * 2)
+            else:
+                winners = ', '.join(f"PLAYER {p}" for p in self.game.winners)
+                self._print(f"{winners} WON!", grid_color, (row + 1) * 2)
+        
         self.screen.refresh()
 
-def play_blokus(blokus: 'BlokusFake') -> None:
+def play_blokus(game: 'Blokus') -> None:
     """
     Executes the blokus game loop event.
 
@@ -188,63 +203,95 @@ def play_blokus(blokus: 'BlokusFake') -> None:
 
     Returns [None]: Nothing, just executes the game
     """
-    blockus = TUI_game(blokus)
-    players = blockus.players
-    blockus.screen.keypad(True)
+    blokus = TUI_game(game)
+    players = blokus.players
+    blokus.screen.keypad(True)
 
-    while not blockus.game.game_over:
-        blockus.draw_board()
-        current_player: 'TUI_player' = players[blockus.game.curr_player]
-        current_player_ppiece: 'Piece'= current_player.pending_piece
-        current_anchor: tuple[int, int] | None = current_player_ppiece.anchor
+    while not blokus.game.game_over:
+        blokus.draw_board()
+        curr_player: 'TUI_player' = players[blokus.game.curr_player]
+        curr_player_ppiece: 'Piece'= curr_player.pending_piece
+        curr_anchor: tuple[int, int] | None = curr_player_ppiece.anchor
 
-        assert not current_anchor is None
-        x, y = current_anchor
-        c = blockus.screen.getch()
+        chr_dict: dict[str, ShapeKind] = \
+        {shapek.value.lower(): shapek for shapek in blokus.game.shapes.keys()}
+
+        assert not curr_anchor is None
+        x, y = curr_anchor
+        c = blokus.screen.getch()
 
         if c == ESC:
+            curses.endwin()
             break
 
         if c == curses.KEY_UP:
-            anchor = current_anchor
-            current_player_ppiece.set_anchor((x - 1, y))
-            if blockus.game.any_wall_collisions(current_player_ppiece):
-                current_player_ppiece.set_anchor(anchor)
+            anchor = curr_anchor
+            curr_player_ppiece.set_anchor((x - 1, y))
+            if blokus.game.any_wall_collisions(curr_player_ppiece):
+                curr_player_ppiece.set_anchor(anchor)
 
         if c == curses.KEY_DOWN:
-            anchor = current_anchor
-            current_player_ppiece.set_anchor((x + 1, y))
-            if blockus.game.any_wall_collisions(current_player_ppiece):
-                current_player_ppiece.set_anchor(anchor)
+            anchor = curr_anchor
+            curr_player_ppiece.set_anchor((x + 1, y))
+            if blokus.game.any_wall_collisions(curr_player_ppiece):
+                curr_player_ppiece.set_anchor(anchor)
 
         if c == curses.KEY_LEFT:
-            anchor = current_anchor
-            current_player_ppiece.set_anchor((x, y - 1))
-            if blockus.game.any_wall_collisions(current_player_ppiece):
-                current_player_ppiece.set_anchor(anchor)
+            anchor = curr_anchor
+            curr_player_ppiece.set_anchor((x, y - 1))
+            if blokus.game.any_wall_collisions(curr_player_ppiece):
+                curr_player_ppiece.set_anchor(anchor)
 
         if c == curses.KEY_RIGHT:
-            anchor = current_anchor
-            current_player_ppiece.set_anchor((x, y + 1))
-            if blockus.game.any_wall_collisions(current_player_ppiece):
-                current_player_ppiece.set_anchor(anchor)
+            anchor = curr_anchor
+            curr_player_ppiece.set_anchor((x, y + 1))
+            if blokus.game.any_wall_collisions(curr_player_ppiece):
+                curr_player_ppiece.set_anchor(anchor)
 
         if c in ENTER_KEYS:
-            if blockus.game.maybe_place(current_player_ppiece):
-                current_player.pending_piece =\
-                 current_player.create_piece(current_player.random_shape())
+            if blokus.game.maybe_place(curr_player_ppiece):
+                curr_player.pending_piece =\
+                 curr_player.create_piece(curr_player.random_shape())
+        
+        for chr, shape in chr_dict.items():
+            if c == ord(chr):
+                if shape in blokus.game.remaining_shapes(curr_player.n):
+                    curr_player.pending_piece = curr_player.create_piece(shape)
+
+        if c == ord("r"):
+            curr_player.pending_piece.rotate_right()
+            if blokus.game.any_wall_collisions(curr_player_ppiece):
+                curr_player.pending_piece.rotate_left()
+        
+        if c == ord("e"):
+            curr_player.pending_piece.rotate_left()
+            if blokus.game.any_wall_collisions(curr_player_ppiece):
+                curr_player.pending_piece.rotate_right()
+
+        if c == ord("q"):
+            blokus.game.retire()
+            if blokus.game.game_over:
+                blokus.draw_board()
+
+@click.command()
+@click.option('-n', '--num-players', type = click.INT, default=2)
+@click.option('-s', '--size', type = click.INT, default = 14)
+@click.option('-p','--start-position', nargs = 2, type = click.INT, multiple = True, default = [(4, 4), (9,9)])
+@click.option('--game', type = click.STRING, default = None)
+def cmd(num_players: int, size: int, start_position: int, game: str):
+    if not game is None:
+        if game == "mono":
+            blokusx = Blokus(1, 11, {(5, 5)})
+        elif game == "duo":
+            blokusx = Blokus(2, 14, {(4, 4), (9,9)})
+        elif 'classic-' in game:
+            n = int(game[-1])
+            blokusx = Blokus(n, 20, {(0, 0), (0,19), (19, 0), (19, 19)})
+    else:
+        blokusx = Blokus(num_players, size, set(p for p in start_position))
+    
+    play_blokus(blokusx)
 
 if __name__ == "__main__":
-    mode: str = sys.argv[1]
-    try:
-        int(mode)
-    except:
-        if mode == 'mono':
-            blokusx = BlokusFake(1, 11, {(5, 5)})
-        if mode == 'duo':
-            blokusx = BlokusFake(2, 14, {(4, 4), (9,9)})
-    else:
-        m = int(mode)
-        blokusx = BlokusFake(2, m, {(0,0),(0,m - 1),(m -1,0),(m - 1,m - 1)})
-
-    play_blokus(blokusx)
+    cmd()
+    curses.endwin()
