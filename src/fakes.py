@@ -610,7 +610,6 @@ class BlokusFake(BlokusBase):
         shapes = self._players[self._curr_player].values()
         
         for shape in shapes:
-            p = Piece(shape)
             for loc in self.empty_locations:
                 new_p = Piece(shape)
                 new_p.set_anchor(loc)

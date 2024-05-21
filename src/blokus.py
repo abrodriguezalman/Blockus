@@ -71,9 +71,9 @@ class Blokus(BlokusBase):
 
         #a set of locations that are empty in the grid, that keeps track of the
         #empty locations (aybalas request)
-        self.empty_locations: set = set()
-        for x in range(size + 1):
-            for y in range(size + 1):
+        self.empty_locations: set[Point] = set()
+        for x in range(size):
+            for y in range(size):
                 self.empty_locations.add((x,y))
 
         #load in _shapes using the from_string method in piece.py
@@ -293,7 +293,12 @@ class Blokus(BlokusBase):
         if len(self.remaining_shapes(self.curr_player)) == len(self.shapes):
             for pos in self.start_positions:
                 if pos in piece.squares() and self.grid[pos[0]][pos[1]] is None:
+<<<<<<< HEAD
                     start_check = True
+=======
+                    return not self.any_wall_collisions(piece)
+            return False
+>>>>>>> b4337db61068d492ae336fad985b9cf3efd60073
 
         #corners/edges thing
         corners = piece.intercardinal_neighbors()
@@ -411,12 +416,23 @@ class Blokus(BlokusBase):
         to a single Shape that are considered available moves
         (because they may differ in location and orientation).
         """
+<<<<<<< HEAD
         available_pieces: set[Piece] = set()
+=======
+
+        #the piece of code that actually calculates all available moves is 
+        #commented out below. It takes appoximately 15 seconds to run 1 game
+        #with it, that is why I'm leaving the code that doesn't calculate for
+        #rotations. But you can comment out and try the real available_moves!
+        """
+        available_pieces: set[Piece]  = set()
+>>>>>>> b4337db61068d492ae336fad985b9cf3efd60073
         shapes = self._players[self._curr_player].values()
         for shape in shapes:
-            p = Piece(shape)
             for loc in self.empty_locations:
+                p = Piece(shape)
                 p.set_anchor(loc)
+<<<<<<< HEAD
                 for _ in range(3):
                     k = Piece(p.shape, False, 90 * _)
                     k.set_anchor(p.anchor)
@@ -446,4 +462,37 @@ class Blokus(BlokusBase):
                 max_piece = piece
         
         return max_piece
+=======
+                p.flip_horizontally()
+                if self.legal_to_place(p):
+                    available_pieces.add(p)
+    
+                for n in range(3):
+                    p = Piece(shape)
+                    p.set_anchor(loc)
+                    for _ in range(n):
+                       p.rotate_right()
+                    if self.legal_to_place(p):
+                        available_pieces.add(p)
 
+                for n in range(3):
+                    p = Piece(shape)
+                    p.set_anchor(loc)
+                    p.flip_horizontally()
+                    for _ in range(n):
+                       p.rotate_right()
+                    if self.legal_to_place(p):
+                        available_pieces.add(p)
+        return available_pieces
+        """
+>>>>>>> b4337db61068d492ae336fad985b9cf3efd60073
+
+        available_pieces: set[Piece]  = set()
+        shapes = self._players[self._curr_player].values()
+        for shape in shapes:
+            for loc in self.empty_locations:
+                p = Piece(shape)
+                p.set_anchor(loc)
+                if self.legal_to_place(p):
+                    available_pieces.add(p)
+        return available_pieces
