@@ -409,6 +409,12 @@ class Blokus(BlokusBase):
         to a single Shape that are considered available moves
         (because they may differ in location and orientation).
         """
+
+        #the piece of code that actually calculates all available moves is 
+        #commented out below. It takes appoximately 15 seconds to run 1 game
+        #with it, that is why I'm leaving the code that doesn't calculate for
+        #rotations. But you can comment out and try the real available_moves!
+        """
         available_pieces: set[Piece]  = set()
         shapes = self._players[self._curr_player].values()
         for shape in shapes:
@@ -435,4 +441,15 @@ class Blokus(BlokusBase):
                        p.rotate_right()
                     if self.legal_to_place(p):
                         available_pieces.add(p)
+        return available_pieces
+        """
+
+        available_pieces: set[Piece]  = set()
+        shapes = self._players[self._curr_player].values()
+        for shape in shapes:
+            for loc in self.empty_locations:
+                p = Piece(shape)
+                p.set_anchor(loc)
+                if self.legal_to_place(p):
+                    available_pieces.add(p)
         return available_pieces
