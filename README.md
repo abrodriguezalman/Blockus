@@ -31,3 +31,6 @@ This component received two S scores in Milestone 2.
 
 
 ## Enhancements
+GUI
+- Display remaining pieces as shapes rather than letters. Clicking on a piece in the piece bank will select it and display it on the board.
+- Added support for hints with `available_moves()`. Pressing "h" on the keyboard will randomly pick a piece to play and display it on the board. If there are no available moves, pressing "h" prints "No available moves" to the terminal.
