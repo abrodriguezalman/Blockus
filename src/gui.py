@@ -462,10 +462,10 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
                 elif event.key == pygame.K_h:
                     a_m = blokus.available_moves()
                     if len(a_m) > 0:
-                        hint = blokus.choose_larger(a_m)
+                        hint = a_m.pop()
                         p.set_piece(hint)
                     else:
-                        print("No available moves")
+                        print(f"No available moves for player {p.num}")
 
                 #process transformations
                 elif event.key == pygame.K_SPACE:

@@ -293,12 +293,8 @@ class Blokus(BlokusBase):
         if len(self.remaining_shapes(self.curr_player)) == len(self.shapes):
             for pos in self.start_positions:
                 if pos in piece.squares() and self.grid[pos[0]][pos[1]] is None:
-<<<<<<< HEAD
-                    start_check = True
-=======
                     return not self.any_wall_collisions(piece)
             return False
->>>>>>> b4337db61068d492ae336fad985b9cf3efd60073
 
         #corners/edges thing
         corners = piece.intercardinal_neighbors()
@@ -416,53 +412,18 @@ class Blokus(BlokusBase):
         to a single Shape that are considered available moves
         (because they may differ in location and orientation).
         """
-<<<<<<< HEAD
-        available_pieces: set[Piece] = set()
-=======
 
         #the piece of code that actually calculates all available moves is 
         #commented out below. It takes appoximately 15 seconds to run 1 game
         #with it, that is why I'm leaving the code that doesn't calculate for
         #rotations. But you can comment out and try the real available_moves!
-        """
-        available_pieces: set[Piece]  = set()
->>>>>>> b4337db61068d492ae336fad985b9cf3efd60073
+        
+        """available_pieces: set[Piece]  = set()
         shapes = self._players[self._curr_player].values()
         for shape in shapes:
             for loc in self.empty_locations:
                 p = Piece(shape)
                 p.set_anchor(loc)
-<<<<<<< HEAD
-                for _ in range(3):
-                    k = Piece(p.shape, False, 90 * _)
-                    k.set_anchor(p.anchor)
-                    if self.legal_to_place(k):
-                        available_pieces.add(k)
-                k = Piece(p.shape, True, 0)
-                k.set_anchor(p.anchor)
-                if self.legal_to_place(k):
-                    available_pieces.add(k)
-                for _ in range(3):
-                    k = Piece(p.shape, True, 90 * _)
-                    k.set_anchor(p.anchor)
-                    if self.legal_to_place(k):
-                        available_pieces.add(k)
-        return available_pieces
-    
-    def choose_larger(self, pcs: set[Piece]) -> Piece:
-        max_squares: int = 0
-        max_piece = pcs.pop()
-        pcs.add(max_piece)
-        for piece in pcs: 
-            cur_len = len(piece.squares())
-            if cur_len == 5:
-                return piece
-            if cur_len > max_squares:
-                max_squares = cur_len
-                max_piece = piece
-        
-        return max_piece
-=======
                 p.flip_horizontally()
                 if self.legal_to_place(p):
                     available_pieces.add(p)
@@ -483,9 +444,8 @@ class Blokus(BlokusBase):
                        p.rotate_right()
                     if self.legal_to_place(p):
                         available_pieces.add(p)
-        return available_pieces
-        """
->>>>>>> b4337db61068d492ae336fad985b9cf3efd60073
+        return available_pieces"""
+        
 
         available_pieces: set[Piece]  = set()
         shapes = self._players[self._curr_player].values()
