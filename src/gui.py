@@ -91,7 +91,6 @@ class Player:
         """
         if p.shape.kind in self._blokus.remaining_shapes(self.num):
             self._pending_piece = p
-            print("HI")
     
     def pick_random_piece(self) -> Piece:
         """pick a random piece to play from remaining pieces
@@ -208,8 +207,8 @@ def draw_board(surface: pygame.surface.Surface, blokus: BlokusBase, players: lis
     p = players[blokus.curr_player-1]
     font = pygame.font.Font(None, 40)
     t = "Player " + str(p.num) + "'s turn"
-    text = font.render(t, True, p.color)
-    surface.blit(text, ((surface.get_width()-text.get_width())/2, SPACING/8))
+    text1 = font.render(t, True, p.color)
+    surface.blit(text1, ((surface.get_width()-text1.get_width())/2, SPACING/8))
 
     #draw the pending piece
     #the pending piece will have a thicker black border
@@ -363,7 +362,7 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
     #the pygame surface
     surface = pygame.display.set_mode((s + ((nrow+1) * (s_bank + SPACING/4)) + SPACING/2, s + (nrow-1)*(s_bank + 0.25* SPACING) + 2*SPACING))
     if blokus.num_players == 1:
-        surface = pygame.display.set_mode((s + SPACING/2, s + (nrow-1)*(s_bank + 0.25* SPACING) + 2*SPACING))
+        surface = pygame.display.set_mode((s + 3*SPACING, s + (nrow-1)*(s_bank + 0.25* SPACING) + 2*SPACING))
 
 
     #create rectangle to represent the board
@@ -458,6 +457,15 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
                 #retire
                 elif event.key == pygame.K_q:
                     blokus.retire()
+                
+                #hint
+                elif event.key == pygame.K_h:
+                    a_m = blokus.available_moves()
+                    if len(a_m) > 0:
+                        hint = blokus.choose_larger(a_m)
+                        p.set_piece(hint)
+                    else:
+                        print("No available moves")
 
                 #process transformations
                 elif event.key == pygame.K_SPACE:
@@ -502,8 +510,9 @@ def play_blokus(blokus: BlokusBase, players: list[Player]) -> None:
                         if skind in blokus.remaining_shapes(p.num):
                             shape = blokus.shapes[skind]
                             piece = Piece(shape)
-                            p.set_piece(piece)
-                            p.pending_piece.set_anchor(a)
+                            piece.set_anchor(a)
+                            if not blokus.any_wall_collisions(piece):
+                                p.set_piece(piece)
            
         #update the board
         draw_board(surface, blokus, players)

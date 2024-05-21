@@ -1,5 +1,4 @@
 from shape_definitions import ShapeKind
-from fakes import BlokusFake
 from piece import Point, Shape, Piece
 from base import BlokusBase, Grid
 from blokus import Blokus
@@ -52,19 +51,52 @@ class NIBot():
     def rand_pos() -> Point:
         return (random.randint(1, 13), random.randint(1, 13))
 
-    """def game() -> list[int]:
-        game = BlokusFake(2, 6, {(0,0), (5,5)})
+class SBot():
+    def __init__(self):
+        pass
+
+    def s_bot(blokus: BlokusBase) -> Piece:
+        """ Satisfactory bot. Chooses pieces using the function choose_larger, 
     
-        while not game.game_over:
-            print("bot1 starts playing")
-            ni_bot(game)
-            print("bot1 played")
-            print("bot2 starts playing")
-            ni_bot(game)
-            print("bot2 played")
+        where the bot prefers the play the largest piece it can play.
+
+        Inputs: 
+            blokus [BlokusFake]: the blokus game being played
     
-        print(game.grid)
-        return game.winners"""
+        Returns [None]: Just plays or retires
+        """
+        avail_moves: set[Piece] = blokus.available_moves()
+        length = len(avail_moves)
+        print(length)
+        if length != 0:
+            for _ in range(length):
+                piece = choose_larger(avail_moves)
+                if blokus.legal_to_place(piece):
+                    print(f"I played a piece: {len(piece.squares())}")
+                    return piece
+                else:
+                    avail_moves.remove(piece)
+
+            return None
+        else:
+
+            blokus.retire()
+        return None
+
+def choose_larger(pcs: set[Piece]) -> Piece:
+    max_squares: int = 0
+    max_piece = pcs.pop()
+    pcs.add(max_piece)
+    for piece in pcs: 
+        cur_len = len(piece.squares())
+        if cur_len == 5:
+            return piece
+        if cur_len > max_squares:
+            max_squares = cur_len
+            max_piece = piece
+        
+    return max_piece
+
 
             
         

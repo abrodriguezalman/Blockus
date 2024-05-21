@@ -2,6 +2,7 @@ from typing import Optional
 from shape_definitions import ShapeKind, definitions
 from piece import Point, Shape, Piece
 from base import BlokusBase
+import copy
 
 # Unoccupied grid cells are represented with None.
 #
@@ -285,18 +286,19 @@ class Blokus(BlokusBase):
         """
         if piece.shape.kind not in self.remaining_shapes(self.curr_player):
             raise ValueError
+        
+        start_check = False
 
         #if first piece, must be on a start position
         if len(self.remaining_shapes(self.curr_player)) == len(self.shapes):
             for pos in self.start_positions:
                 if pos in piece.squares() and self.grid[pos[0]][pos[1]] is None:
-                    return True
-            return False
+                    start_check = True
 
         #corners/edges thing
         corners = piece.intercardinal_neighbors()
         edges = piece.cardinal_neighbors()
-        ret_val = False
+        corner_check = False
 
         #iterate through grid
         for row in range(self.size):
@@ -311,9 +313,9 @@ class Blokus(BlokusBase):
 
                     #piece must share at least one corner
                     if (row, col) in corners:
-                        ret_val = True
+                        corner_check = True
 
-        return not self.any_wall_collisions(piece) and not self.any_collisions(piece) and ret_val
+        return not self.any_wall_collisions(piece) and not self.any_collisions(piece) and (corner_check or start_check)
 
 
     def maybe_place(self, piece: Piece) -> bool:
@@ -409,23 +411,39 @@ class Blokus(BlokusBase):
         to a single Shape that are considered available moves
         (because they may differ in location and orientation).
         """
-        available_pieces: set = set()
+        available_pieces: set[Piece] = set()
         shapes = self._players[self._curr_player].values()
         for shape in shapes:
             p = Piece(shape)
             for loc in self.empty_locations:
                 p.set_anchor(loc)
                 for _ in range(3):
-                    p.rotate_right()
-                    if self.legal_to_place(p):
-                        available_pieces.add(p)
-                p.flip_horizontally()
-                if self.legal_to_place(p):
-                    available_pieces.add(p)
+                    k = Piece(p.shape, False, 90 * _)
+                    k.set_anchor(p.anchor)
+                    if self.legal_to_place(k):
+                        available_pieces.add(k)
+                k = Piece(p.shape, True, 0)
+                k.set_anchor(p.anchor)
+                if self.legal_to_place(k):
+                    available_pieces.add(k)
                 for _ in range(3):
-                    p.rotate_left()
-                    if self.legal_to_place(p):
-                        available_pieces.add(p)
+                    k = Piece(p.shape, True, 90 * _)
+                    k.set_anchor(p.anchor)
+                    if self.legal_to_place(k):
+                        available_pieces.add(k)
         return available_pieces
     
+    def choose_larger(self, pcs: set[Piece]) -> Piece:
+        max_squares: int = 0
+        max_piece = pcs.pop()
+        pcs.add(max_piece)
+        for piece in pcs: 
+            cur_len = len(piece.squares())
+            if cur_len == 5:
+                return piece
+            if cur_len > max_squares:
+                max_squares = cur_len
+                max_piece = piece
+        
+        return max_piece
 
