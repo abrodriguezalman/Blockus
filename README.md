@@ -87,8 +87,8 @@ The -n NUM_GAMES parameter specifies how many games to run (default: 20).
 
 ## Game Features and Interactions
 
-### Piece Selection:
-* Press the corresponding number or letter key to select a piece (e.g., pressing 1 selects the piece "ShapeKind.ONE").
+* ### Piece Selection:
+  - Press the corresponding number or letter key to select a piece (e.g., pressing 1 selects the piece "ShapeKind.ONE").
 
 * #### Flips and Rotations:
   - r: Rotate right
