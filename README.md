@@ -22,7 +22,7 @@ This repository provides a complete implementation of the game with the ability 
 
 ## How to Run the Game
 
-### Prerequisites
+# Prerequisites
 
 - **Python 3**: Ensure Python 3 is installed on your system.
 - **Dependencies**: Install the required libraries by running:
@@ -32,7 +32,7 @@ This repository provides a complete implementation of the game with the ability 
 ## Running the Game
 You can run the game using either the GUI, TUI, or Bot.
 
-## 1. Using the GUI
+# 1. Using the GUI
 
 To start a game with the GUI, use the following command-line options:
 
@@ -45,7 +45,7 @@ To start a game with the GUI, use the following command-line options:
 - Custom Game Setup (e.g., 2 players on a 14x14 board, start positions at (4,9) and (9,4)):
 python3 src/gui.py -n 2 -s 14 -p 4 9 -p 9 4
 
-## 2. Using the TUI
+# 2. Using the TUI
 
 If you prefer the Text User Interface (TUI), you can use the following command:
 
@@ -53,7 +53,7 @@ python3 src/tui.py --game=duo
 
 The command-line options are the same as those for the GUI.
 
-## 3. Playing with the Bot
+# 3. Playing with the Bot
 
 Simulate a game with bots by using the following parameters:
 
@@ -79,7 +79,7 @@ The -n NUM_GAMES parameter specifies how many games to run (default: 20).
 * --game=duo: Specifies Blokus Duo configuration.
 * --game=classic-2, --game=classic-3, --game=classic-4: Specifies Blokus Classic with 2, 3, or 4 players.
   
-## Bot Options:
+# Bot Options:
 
 * -1 STRATEGY or --player1 STRATEGY: Strategy for player 1 (Satisfactory, Needs Improvement, or Unsatisfactory). Default: N.
 * -2 STRATEGY or --player2 STRATEGY: Strategy for player 2 (Satisfactory, Needs Improvement, or Unsatisfactory). Default: N.
@@ -87,7 +87,7 @@ The -n NUM_GAMES parameter specifies how many games to run (default: 20).
 
 ## Game Features and Interactions
 
-## Piece Selection:
+# Piece Selection:
 * Press the corresponding number or letter key to select a piece (e.g., pressing 1 selects the piece "ShapeKind.ONE").
 
 * # Flips and Rotations:
@@ -104,7 +104,7 @@ The -n NUM_GAMES parameter specifies how many games to run (default: 20).
 * # End Game:
 - When all players have either retired or placed all their pieces, the game ends and the winner is displayed.
 
-# Notes
+## Notes
 
 You can adjust the board size, player count, and start positions using the command-line parameters.
 Players can retire during the game, and the game ends when all players have either retired or placed all their pieces.
