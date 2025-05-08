@@ -91,18 +91,18 @@ The -n NUM_GAMES parameter specifies how many games to run (default: 20).
 * Press the corresponding number or letter key to select a piece (e.g., pressing 1 selects the piece "ShapeKind.ONE").
 
 * #### Flips and Rotations:
-- r: Rotate right
-- e: Rotate left
-- space: Flip horizontally
+  - r: Rotate right
+  - e: Rotate left
+  - space: Flip horizontally
 
 * #### Retirement:
-- Press q to retire from the game.
+  - Press q to retire from the game.
 
 * #### Display:
-- Displays the current player, their score, and whether they are retired.
+  - Displays the current player, their score, and whether they are retired.
 
 * #### End Game:
-- When all players have either retired or placed all their pieces, the game ends and the winner is displayed.
+  - When all players have either retired or placed all their pieces, the game ends and the winner is displayed.
 
 ## Notes
 
